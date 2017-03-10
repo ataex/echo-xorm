@@ -1,0 +1,134 @@
+{
+    "memo": "4965943307bb6b4d31d9c4af5262decc2f243cab16e19c56c4eeeeb79a750b35",
+    "projects": [
+        {
+            "name": "github.com/BurntSushi/toml",
+            "branch": "master",
+            "revision": "99064174e013895bbd9b025c31100bd1d9b590ca",
+            "packages": [
+                "."
+            ]
+        },
+        {
+            "name": "github.com/dgrijalva/jwt-go",
+            "branch": "release_3_0_0",
+            "revision": "d8c133f5585dd19433ae7a9849ea7f615b30e134",
+            "packages": [
+                "."
+            ]
+        },
+        {
+            "name": "github.com/go-xorm/builder",
+            "branch": "master",
+            "revision": "c6e604e9c7b7461715091e14ad0c242ec44c26e4",
+            "packages": [
+                "."
+            ]
+        },
+        {
+            "name": "github.com/go-xorm/core",
+            "branch": "master",
+            "revision": "7daacb215ed03af093a72e0af32a5fe79458613d",
+            "packages": [
+                "."
+            ]
+        },
+        {
+            "name": "github.com/go-xorm/xorm",
+            "branch": "master",
+            "revision": "bc9732226411dc0a2d2f04afee13cd2ef368630d",
+            "packages": [
+                "."
+            ]
+        },
+        {
+            "name": "github.com/labstack/echo",
+            "branch": "master",
+            "revision": "4d6ccce2b4243be317f54ccfe3d555f8fca5c4ef",
+            "packages": [
+                ".",
+                "middleware"
+            ]
+        },
+        {
+            "name": "github.com/labstack/gommon",
+            "branch": "master",
+            "revision": "e8995fb26e646187d33cff439b18609cfba23088",
+            "packages": [
+                "bytes",
+                "color",
+                "log",
+                "random"
+            ]
+        },
+        {
+            "name": "github.com/mattn/go-colorable",
+            "branch": "master",
+            "revision": "acb9493f2794fd0f820de7a27a217dafbb1b65ea",
+            "packages": [
+                "."
+            ]
+        },
+        {
+            "name": "github.com/mattn/go-isatty",
+            "branch": "master",
+            "revision": "57fdcb988a5c543893cc61bce354a6e24ab70022",
+            "packages": [
+                "."
+            ]
+        },
+        {
+            "name": "github.com/mattn/go-sqlite3",
+            "branch": "master",
+            "revision": "8ecd77c707d698b39fbcf76e4e8d08f284c8307f",
+            "packages": [
+                "."
+            ]
+        },
+        {
+            "name": "github.com/valyala/bytebufferpool",
+            "branch": "master",
+            "revision": "e746df99fe4a3986f4d4f79e13c1e0117ce9c2f7",
+            "packages": [
+                "."
+            ]
+        },
+        {
+            "name": "github.com/valyala/fasttemplate",
+            "branch": "master",
+            "revision": "dcecefd839c4193db0d35b88ec65b4c12d360ab0",
+            "packages": [
+                "."
+            ]
+        },
+        {
+            "name": "golang.org/x/crypto",
+            "branch": "master",
+            "revision": "728b753d0135da6801d45a38e6f43ff55779c5c2",
+            "packages": [
+                "acme",
+                "acme/autocert",
+                "bcrypt",
+                "blowfish",
+                "sha3"
+            ]
+        },
+        {
+            "name": "golang.org/x/net",
+            "branch": "master",
+            "revision": "a6577fac2d73be281a500b310739095313165611",
+            "packages": [
+                "context",
+                "context/ctxhttp"
+            ]
+        },
+        {
+            "name": "golang.org/x/sys",
+            "branch": "master",
+            "revision": "99f16d856c9836c42d24e7ab64ea72916925fa97",
+            "packages": [
+                "unix"
+            ]
+        }
+    ]
+}
