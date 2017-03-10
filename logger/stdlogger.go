@@ -14,7 +14,7 @@ type StdLogger struct {
 	tag    string
 }
 
-// NewStdLogger is a constructor
+// NewStdLogger ...
 func NewStdLogger(id, tag string) *StdLogger {
 	l := StdLogger{
 		logger: log.New(os.Stdout, "", 0),

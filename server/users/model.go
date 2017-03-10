@@ -70,7 +70,7 @@ func (u *User) Update(orm *xorm.Engine) (int64, error) {
 		found bool
 		user  User
 	)
-	// check if user exists
+	// get old user data (and check if user exists)
 	found, err = orm.ID(u.ID).Get(&user)
 	if err != nil {
 		return 0, err
@@ -78,12 +78,13 @@ func (u *User) Update(orm *xorm.Engine) (int64, error) {
 	if !found {
 		return 0, nil
 	}
-	//update
-	err = u.updateFields(&user)
+	//update: u.X goes to user.X
+	err = user.updateFieldsFrom(u)
 	if err != nil {
 		return 0, nil
 	}
 	return orm.ID(user.ID).Update(&user)
+	// TODO: copy user data to u after Update to sync Created and Update
 }
 
 // Delete user from database
@@ -106,17 +107,17 @@ func (u *User) Delete(orm *xorm.Engine) (int64, error) {
 }
 
 //------------------------------------------------------------------------------
-func (u *User) updateFields(user *User) error {
-	if len(u.Login) != 0 {
-		user.Login = u.Login
-		user.Hash = utils.GetSHA3Hash(u.Login)
+func (u *User) updateFieldsFrom(user *User) error {
+	if len(user.Login) != 0 {
+		u.Login = user.Login
+		u.Hash = utils.GetSHA3Hash(user.Login)
 	}
-	if len(u.Password) != 0 {
-		hash, err := bcrypt.GenerateFromPassword([]byte(u.Password), bcrypt.DefaultCost)
+	if len(user.Password) != 0 {
+		hash, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
 		if err != nil {
 			return err
 		}
-		user.Password = string(hash[:])
+		u.Password = string(hash[:])
 	}
 	return nil
 }
