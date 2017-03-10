@@ -12,8 +12,8 @@ type User struct {
 	Login    string `xorm:"text index not null unique 'login'" json:"login"`
 	Hash     string `xorm:"'hash' text unique" json:"hash"`
 	Password string `xorm:"text not null 'password'" json:"-"`
-	Created  uint64 `xorm:"created" json:"-"` // too lazy to extract
-	Updated  uint64 `xorm:"updated" json:"-"` // too lazy to extract
+	Created  uint64 `xorm:"created" json:"-"` // too lazy to fix
+	Updated  uint64 `xorm:"updated" json:"-"` // too lazy to fix
 }
 
 // TableName used by xorm to set table name for entity
@@ -21,7 +21,7 @@ func (u *User) TableName() string {
 	return "users"
 }
 
-// FindAll saves user to database
+// FindAll users in database
 func (u *User) FindAll(orm *xorm.Engine) ([]User, error) {
 	var (
 		users []User
@@ -31,12 +31,12 @@ func (u *User) FindAll(orm *xorm.Engine) ([]User, error) {
 	return users, err
 }
 
-// Find extract 1 user from database
+// Find user in database
 func (u *User) Find(orm *xorm.Engine) (bool, error) {
 	return orm.ID(u.ID).Get(u)
 }
 
-// Save inserts user to database
+// Save user to database
 func (u *User) Save(orm *xorm.Engine) (int64, error) {
 	var (
 		err      error
@@ -63,7 +63,7 @@ func (u *User) Save(orm *xorm.Engine) (int64, error) {
 	return affected, err
 }
 
-// Update updates user to database
+// Update user in database
 func (u *User) Update(orm *xorm.Engine) (int64, error) {
 	var (
 		err   error
@@ -86,7 +86,7 @@ func (u *User) Update(orm *xorm.Engine) (int64, error) {
 	return orm.ID(user.ID).Update(&user)
 }
 
-// Delete updates user to database
+// Delete user from database
 func (u *User) Delete(orm *xorm.Engine) (int64, error) {
 	var (
 		err   error
