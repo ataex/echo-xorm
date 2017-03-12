@@ -2,6 +2,7 @@ package server
 
 import (
 	"github.com/corvinusz/echo-xorm/ctx"
+	"github.com/corvinusz/echo-xorm/server/auth"
 	"github.com/corvinusz/echo-xorm/server/users"
 
 	"github.com/labstack/echo"
@@ -10,13 +11,15 @@ import (
 
 // Server is an main application object that shared (read-only) to application modules
 type Server struct {
-	context *ctx.Context
+	context    *ctx.Context
+	signingKey []byte
 }
 
-// NewServer creates server
+// NewServer constructor
 func NewServer(c *ctx.Context) *Server {
 	s := new(Server)
 	s.context = c
+	s.signingKey = []byte("secret")
 	return s
 }
 
@@ -30,16 +33,21 @@ func (s *Server) Run() {
 	e.Use(middleware.Recover())
 
 	var (
+		authHandler  = auth.Handler{C: s.context, Key: s.signingKey}
 		usersHandler = users.Handler{C: s.context}
 	)
 
 	// Register routes
+	e.POST("/auth", authHandler.PostAuth)
+	// restricted
+	r := e.Group("")
+	r.Use(middleware.JWT(s.signingKey))
 	// users
-	e.POST("/users", usersHandler.CreateUser)
-	e.GET("/users", usersHandler.GetAllUsers)
-	e.GET("/users/:id", usersHandler.GetUser)
-	e.PUT("/users/:id", usersHandler.PutUser)
-	e.DELETE("/users/:id", usersHandler.DeleteUser)
+	r.POST("/users", usersHandler.CreateUser)
+	r.GET("/users", usersHandler.GetAllUsers)
+	r.GET("/users/:id", usersHandler.GetUser)
+	r.PUT("/users/:id", usersHandler.PutUser)
+	r.DELETE("/users/:id", usersHandler.DeleteUser)
 
 	// start server
 	s.context.Logger.Info("server started at localhost:" + s.context.Config.Port)

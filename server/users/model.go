@@ -33,7 +33,7 @@ func (u *User) FindAll(orm *xorm.Engine) ([]User, error) {
 
 // Find user in database
 func (u *User) Find(orm *xorm.Engine) (bool, error) {
-	return orm.ID(u.ID).Get(u)
+	return orm.Get(u)
 }
 
 // Save user to database

@@ -50,7 +50,7 @@ func main() {
 	}
 	// setup OS-signal catchers
 	signalChannel := make(chan os.Signal, 1)
-	signal.Notify(signalChannel, syscall.SIGINT, syscall.SIGTERM)
+	signal.Notify(signalChannel, syscall.SIGINT, syscall.SIGTERM, syscall.SIGHUP)
 	go func() { // start OS-signal catching route
 		for sig := range signalChannel {
 			if a.C.Orm != nil {
@@ -69,7 +69,7 @@ func main() {
 
 	// run application server
 	if a.C.Logger == nil {
-		log.Fatal("error ", os.Args[0]+" startup error: logger not initialized  ")
+		log.Fatal("error ", os.Args[0]+" startup error: logger not initialized ")
 		os.Exit(1)
 	}
 	a.C.Logger.Info("appcontrol", "started on localhost:"+a.C.Config.Port)
