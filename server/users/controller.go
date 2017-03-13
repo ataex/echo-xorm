@@ -4,9 +4,9 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/corvinusz/echo-xorm/ctx"
-
 	"github.com/labstack/echo"
+
+	"github.com/corvinusz/echo-xorm/ctx"
 )
 
 // userInput represents payload data format

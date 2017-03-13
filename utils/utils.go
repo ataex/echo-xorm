@@ -2,6 +2,7 @@ package utils
 
 import (
 	"encoding/base64"
+
 	"golang.org/x/crypto/sha3"
 )
 

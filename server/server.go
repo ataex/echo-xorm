@@ -1,12 +1,12 @@
 package server
 
 import (
+	"github.com/labstack/echo"
+	"github.com/labstack/echo/middleware"
+
 	"github.com/corvinusz/echo-xorm/ctx"
 	"github.com/corvinusz/echo-xorm/server/auth"
 	"github.com/corvinusz/echo-xorm/server/users"
-
-	"github.com/labstack/echo"
-	"github.com/labstack/echo/middleware"
 )
 
 // Server is an main application object that shared (read-only) to application modules

@@ -3,6 +3,9 @@
         "github.com/BurntSushi/toml": {
             "branch": "master"
         },
+        "github.com/dgrijalva/jwt-go": {
+            "branch": "release_3_0_0"
+        },
         "github.com/go-xorm/xorm": {
             "branch": "master"
         },

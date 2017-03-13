@@ -6,11 +6,11 @@ import (
 	"os"
 	"strconv"
 
-	"github.com/corvinusz/echo-xorm/logger"
-	"github.com/corvinusz/echo-xorm/server/users"
-
 	"github.com/BurntSushi/toml"
 	"github.com/go-xorm/xorm"
+
+	"github.com/corvinusz/echo-xorm/logger"
+	"github.com/corvinusz/echo-xorm/server/users"
 )
 
 // readConfig reads configuration file into application Config structure and inits in-memory token storage

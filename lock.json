@@ -1,10 +1,10 @@
 {
-    "memo": "4965943307bb6b4d31d9c4af5262decc2f243cab16e19c56c4eeeeb79a750b35",
+    "memo": "392b3317cbefa7b4d179633a06bd82ed2628793c11feab20e7c31447dc4c7325",
     "projects": [
         {
             "name": "github.com/BurntSushi/toml",
             "branch": "master",
-            "revision": "99064174e013895bbd9b025c31100bd1d9b590ca",
+            "revision": "e643e9ef00b049d75de26e61109c5ea01885cd21",
             "packages": [
                 "."
             ]
@@ -44,7 +44,7 @@
         {
             "name": "github.com/labstack/echo",
             "branch": "master",
-            "revision": "4d6ccce2b4243be317f54ccfe3d555f8fca5c4ef",
+            "revision": "42e83ed0b985123c3368638cead1ec789d92da7a",
             "packages": [
                 ".",
                 "middleware"
@@ -53,7 +53,7 @@
         {
             "name": "github.com/labstack/gommon",
             "branch": "master",
-            "revision": "e8995fb26e646187d33cff439b18609cfba23088",
+            "revision": "9cedb429ffbe71a32a3ae7c65fd109cb7ae07804",
             "packages": [
                 "bytes",
                 "color",
@@ -64,7 +64,7 @@
         {
             "name": "github.com/mattn/go-colorable",
             "branch": "master",
-            "revision": "acb9493f2794fd0f820de7a27a217dafbb1b65ea",
+            "revision": "a392f450ea64cee2b268dfaacdc2502b50a22b18",
             "packages": [
                 "."
             ]

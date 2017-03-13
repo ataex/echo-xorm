@@ -1,9 +1,10 @@
 package users
 
 import (
-	"github.com/corvinusz/echo-xorm/utils"
 	"github.com/go-xorm/xorm"
 	"golang.org/x/crypto/bcrypt"
+
+	"github.com/corvinusz/echo-xorm/utils"
 )
 
 // User is an entity (here are DB definitions)

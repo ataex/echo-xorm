@@ -4,11 +4,11 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/corvinusz/echo-xorm/ctx"
 	jwt "github.com/dgrijalva/jwt-go"
 	"github.com/labstack/echo"
 	"golang.org/x/crypto/bcrypt"
 
+	"github.com/corvinusz/echo-xorm/ctx"
 	"github.com/corvinusz/echo-xorm/server/users"
 )
 
