@@ -1,0 +1,88 @@
+# #
+# # Copyright (c) New Cloud Technologies, Ltd., 2013-2016
+# #
+# # You can not use the contents of the file in any way without New Cloud Technologies, Ltd. written permission.
+# # To obtain such a permit, you should contact New Cloud Technologies, Ltd. at http://ncloudtech.com/contact.html
+# #
+#
+# -
+#     id: 1
+#     created: 1459810009
+#     license_key: 9B99-CB9A-1A88-EDEB-0000
+#     serial_num: 9B99-CB9A-1A88-EDEB-0000
+#     expiration_time: 1460846908
+#     license_id: 1
+#     product_id: 1
+#     customer_id: 1
+# -
+#     id: 2
+#     created: 1459810009
+#     license_key: 9B99-CB9A-1A88-EDEB-0001
+#     serial_num: 9B99-CB9A-1A88-EDEB-0001
+#     expiration_time: 1460846908
+#     license_id: 2
+#     product_id: 2
+#     customer_id: 2
+# -
+#     id: 3
+#     created: 1459810009
+#     license_key: 9B99-CB9A-1A88-EDEB-0002
+#     serial_num: 9B99-CB9A-1A88-EDEB-0002
+#     expiration_time: 1460846908
+#     license_id: 3
+#     product_id: 3
+#     customer_id: 3
+# -
+#     id: 4
+#     created: 1459810009
+#     license_key: 9B99-CB9A-1A88-EDEB-0003
+#     serial_num: 9B99-CB9A-1A88-EDEB-0003
+#     expiration_time: 1460846908
+#     license_id: 3
+#     product_id: 3
+#     customer_id: 3
+# -
+#     id: 5
+#     created: 1459810009
+#     license_key: 9B99-CB9A-1A88-EDEB-0004
+#     serial_num: 9B99-CB9A-1A88-EDEB-0004
+#     expiration_time: 1460846908
+#     license_id: 3
+#     product_id: 3
+#     customer_id: 3
+# -
+#     id: 6
+#     created: 1459810009
+#     license_key: 9B99-CB9A-1A88-EDEB-0005
+#     serial_num: 9B99-CB9A-1A88-EDEB-0005
+#     expiration_time: 1460846908
+#     license_id: 1
+#     product_id: 2
+#     customer_id: 3
+# -
+#     id: 7
+#     created: 1459810009
+#     license_key: 9B99-CB9A-1A88-EDEB-0006
+#     serial_num: 9B99-CB9A-1A88-EDEB-0006
+#     expiration_time: 1460846908
+#     license_id: 2
+#     product_id: 3
+#     customer_id: 4
+# -
+#     id: 8
+#     created: 1459810009
+#     license_key: 9B99-CB9A-1A88-EDEB-0007
+#     serial_num: 9B99-CB9A-1A88-EDEB-0007
+#     expiration_time: 1460846908
+#     license_id: 2
+#     product_id: 3
+#     customer_id: 4
+# -
+#     id: 9
+#     created: 1459810009
+#     license_key: 9B99-CB9A-1A88-EDEB-0008
+#     serial_num: 9B99-CB9A-1A88-EDEB-0008
+#     expiration_time: 1460846908
+#     license_id: 4
+#     product_id: 4
+#     customer_id: 4

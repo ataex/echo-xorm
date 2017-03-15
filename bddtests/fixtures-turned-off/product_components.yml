@@ -1,0 +1,19 @@
+# #
+# # Copyright (c) New Cloud Technologies, Ltd., 2013-2016
+# #
+# # You can not use the contents of the file in any way without New Cloud Technologies, Ltd. written permission.
+# # To obtain such a permit, you should contact New Cloud Technologies, Ltd. at http://ncloudtech.com/contact.html
+# #
+#
+# -
+#     product_id: 5
+#     component_id: 4
+# -
+#     product_id: 5
+#     component_id: 3
+# -
+#     product_id: 6
+#     component_id: 4
+# -
+#     product_id: 6
+#     component_id: 3

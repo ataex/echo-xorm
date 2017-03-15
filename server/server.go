@@ -7,6 +7,7 @@ import (
 	"github.com/corvinusz/echo-xorm/ctx"
 	"github.com/corvinusz/echo-xorm/server/auth"
 	"github.com/corvinusz/echo-xorm/server/users"
+	"github.com/corvinusz/echo-xorm/server/version"
 )
 
 // Server is an main application object that shared (read-only) to application modules
@@ -15,11 +16,11 @@ type Server struct {
 	signingKey []byte
 }
 
-// NewServer constructor
-func NewServer(c *ctx.Context) *Server {
+// New constructor
+func New(c *ctx.Context) *Server {
 	s := new(Server)
 	s.context = c
-	s.signingKey = []byte("secret")
+	s.signingKey = []byte(c.Config.Secret)
 	return s
 }
 
@@ -33,14 +34,18 @@ func (s *Server) Run() {
 	e.Use(middleware.Recover())
 
 	var (
-		authHandler  = auth.Handler{C: s.context, Key: s.signingKey}
-		usersHandler = users.Handler{C: s.context}
+		authHandler    = auth.Handler{C: s.context, Key: s.signingKey}
+		versionHandler = version.Handler{C: s.context}
+		usersHandler   = users.Handler{C: s.context}
 	)
 
-	// Register routes
+	// Non-authored routes
 	e.POST("/auth", authHandler.PostAuth)
+	e.GET("/", versionHandler.GetVersion)
+	e.GET("/version", versionHandler.GetVersion)
 	// restricted
 	r := e.Group("")
+	// group middleware
 	r.Use(middleware.JWT(s.signingKey))
 	// users
 	r.POST("/users", usersHandler.CreateUser)
@@ -50,6 +55,10 @@ func (s *Server) Run() {
 	r.DELETE("/users/:id", usersHandler.DeleteUser)
 
 	// start server
-	s.context.Logger.Info("server started at localhost:" + s.context.Config.Port)
-	s.context.Logger.Err(e.Start(":" + s.context.Config.Port))
+	e.Server.Addr = ":" + s.context.Config.Port
+	s.context.Logger.Info("appcontrol", "starting server at "+e.Server.Addr)
+	err := e.Start(e.Server.Addr)
+	if err != nil {
+		s.context.Logger.Err("appcontrol", err.Error())
+	}
 }

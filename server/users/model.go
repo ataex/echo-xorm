@@ -3,18 +3,19 @@ package users
 import (
 	"github.com/go-xorm/xorm"
 	"golang.org/x/crypto/bcrypt"
-
-	"github.com/corvinusz/echo-xorm/utils"
 )
 
 // User is an entity (here are DB definitions)
 type User struct {
-	ID       uint64 `xorm:"'id' pk autoincr unique notnull" json:"id"`
-	Login    string `xorm:"text index not null unique 'login'" json:"login"`
-	Hash     string `xorm:"'hash' text unique" json:"hash"`
-	Password string `xorm:"text not null 'password'" json:"-"`
-	Created  uint64 `xorm:"created" json:"-"` // too lazy to fix
-	Updated  uint64 `xorm:"updated" json:"-"` // too lazy to fix
+	ID            uint64 `xorm:"'id' pk autoincr unique notnull" json:"id"`
+	Login         string `xorm:"text index not null unique 'login'" json:"login"`
+	Email         string `xorm:"text index unique 'email'" json:"email"`
+	Password      string `xorm:"text not null 'password'" json:"-"`
+	PasswordEtime uint64 `json:"password_etime"`
+	//Group         ctx.Group `json:"group" xorm:"-"`
+	//GroupID uint64 `json:"-" xorm:"'group_id' index"`
+	Created uint64 `xorm:"created" json:"created"`
+	Updated uint64 `xorm:"updated" json:"updated"`
 }
 
 // TableName used by xorm to set table name for entity
@@ -59,7 +60,6 @@ func (u *User) Save(orm *xorm.Engine) (int64, error) {
 	}
 
 	u.Password = string(hash[:])
-	u.Hash = utils.GetSHA3Hash(u.Login)
 	affected, err = orm.InsertOne(u)
 	return affected, err
 }
@@ -111,14 +111,13 @@ func (u *User) Delete(orm *xorm.Engine) (int64, error) {
 func (u *User) updateFieldsFrom(user *User) error {
 	if len(user.Login) != 0 {
 		u.Login = user.Login
-		u.Hash = utils.GetSHA3Hash(user.Login)
 	}
 	if len(user.Password) != 0 {
 		hash, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
 		if err != nil {
 			return err
 		}
-		u.Password = string(hash[:])
+		u.Password = string(hash[:8])
 	}
 	return nil
 }

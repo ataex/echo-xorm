@@ -1,0 +1,23 @@
+# #
+# # Copyright (c) New Cloud Technologies, Ltd., 2013-2017
+# #
+# # You can not use the contents of the file in any way without New Cloud Technologies, Ltd. written permission.
+# # To obtain such a permit, you should contact New Cloud Technologies, Ltd. at http://ncloudtech.com/contact.html
+# #
+#
+# -
+#     id: 1
+#     created: 1459096113
+#     name: admins
+# -
+#     id: 4
+#     created: 1459096113
+#     name: guests
+# -
+#     id: 5
+#     created: 1459096113
+#     name: banned
+# -
+#     id: 10
+#     created: 1459096113
+#     name: operators

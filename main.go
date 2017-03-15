@@ -13,7 +13,6 @@ import (
 	"log"
 	"os"
 	"os/signal"
-	"runtime"
 	"syscall"
 
 	_ "github.com/mattn/go-sqlite3"
@@ -29,7 +28,7 @@ var (
 )
 
 func main() {
-	runtime.GOMAXPROCS(runtime.NumCPU())
+	//runtime.GOMAXPROCS(runtime.NumCPU())
 	// parse flags
 	flag.Parse()
 
@@ -43,7 +42,7 @@ func main() {
 	}
 
 	// create application
-	a, err = app.NewApplication(flags)
+	a, err = app.New(flags)
 	if err != nil {
 		log.Fatal("error ", os.Args[0]+" initialization error: "+err.Error())
 		os.Exit(1)

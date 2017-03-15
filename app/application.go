@@ -10,8 +10,8 @@ type Application struct {
 	C *ctx.Context
 }
 
-// NewApplication constructor
-func NewApplication(flags *ctx.Flags) (*Application, error) {
+// New constructor
+func New(flags *ctx.Flags) (*Application, error) {
 	app := new(Application)
 	app.C = new(ctx.Context)
 	// read config file
@@ -33,6 +33,6 @@ func NewApplication(flags *ctx.Flags) (*Application, error) {
 
 // Run starts application
 func (a *Application) Run() {
-	server := server.NewServer(a.C)
-	server.Run()
+	srv := server.New(a.C)
+	srv.Run()
 }

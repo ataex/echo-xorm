@@ -1,0 +1,63 @@
+# #
+# # Copyright (c) New Cloud Technologies, Ltd., 2013-2016
+# #
+# # You can not use the contents of the file in any way without New Cloud Technologies, Ltd. written permission.
+# # To obtain such a permit, you should contact New Cloud Technologies, Ltd. at http://ncloudtech.com/contact.html
+# #
+#
+# -
+#     id: 1
+#     created: 1459655013
+#     email: e_test_customer_1@ncloudtech.ru
+#     reserved_email: e_reserved_test_customer_1@ncloudtech.ru
+#     name: e_test_customer_1_name
+#     note: This is a customer note 1
+# -
+#     id: 2
+#     created: 1459655013
+#     email: e_test_customer_2@ncloudtech.ru
+#     reserved_email: e_reserved_test_customer_2@ncloudtech.ru
+#     name: e_test_customer_2_name
+#     note: This is a customer note 2
+# -
+#     id: 3
+#     created: 1459655013
+#     email: e_test_customer_3@ncloudtech.ru
+#     reserved_email: e_reserved_test_customer_3@ncloudtech.ru
+#     name: e_test_customer_3_name
+#     note: This is a customer note 3
+# -
+#     id: 4
+#     created: 1459655013
+#     email: e_test_customer_4@ncloudtech.ru
+#     reserved_email: e_reserved_test_customer_4@ncloudtech.ru
+#     name: e_test_customer_4_name
+#     note: This is a customer note 4
+# -
+#     id: 5
+#     created: 1459655013
+#     email: e_test_customer_5@ncloudtech.ru
+#     reserved_email: e_reserved_test_customer_5@ncloudtech.ru
+#     name: e_test_customer_5_name
+#     note: This is a customer note 5
+# -
+#     id: 6
+#     created: 1459655013
+#     email: e_test_customer_6@ncloudtech.ru
+#     reserved_email: e_reserved_test_customer_6@ncloudtech.ru
+#     name: e_test_customer_6_name
+#     note: This is a customer note 6
+# -
+#     id: 7
+#     created: 1459655013
+#     email: e_test_customer_7@ncloudtech.ru
+#     reserved_email: e_reserved_test_customer_7@ncloudtech.ru
+#     name: e_test_customer_7_name
+#     note: This is a customer note 7
+# -
+#     id: 8
+#     created: 1459655013
+#     email: e_test_customer_8@ncloudtech.ru
+#     reserved_email: e_reserved_test_customer_8@ncloudtech.ru
+#     name: e_test_customer_8_name
+#     note: This is a customer note 8
