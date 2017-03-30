@@ -15,5 +15,5 @@ dsn = "/tmp/echo-xorm-test.sqlite.db"
 # available values "std" (or "stdout"), "fluent" (or "fluentd"), "nil" ("null")
 # if not recognized then log_mode considered as "std"
 log_mode = "std"
-#log_tag = "your-app-tag" # if null then log_tag will be set to executable name
+log_tag = "echo-test" # if null then log_tag will be set to executable name
 #id = "your-app-id" # if null then id will be set to process id

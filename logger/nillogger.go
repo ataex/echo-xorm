@@ -14,8 +14,8 @@ func (l *NilLogger) Info(values ...interface{}) {
 	return
 }
 
-// Err do nothing, just match the interface
-func (l *NilLogger) Err(values ...interface{}) {
+// Error do nothing, just match the interface
+func (l *NilLogger) Error(values ...interface{}) {
 	return
 }
 

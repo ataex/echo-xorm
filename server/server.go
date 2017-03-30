@@ -59,6 +59,6 @@ func (s *Server) Run() {
 	s.context.Logger.Info("appcontrol", "starting server at "+e.Server.Addr)
 	err := e.Start(e.Server.Addr)
 	if err != nil {
-		s.context.Logger.Err("appcontrol", err.Error())
+		s.context.Logger.Error("appcontrol", err.Error())
 	}
 }

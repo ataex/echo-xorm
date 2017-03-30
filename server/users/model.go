@@ -13,7 +13,7 @@ import (
 type User struct {
 	ID            uint64 `xorm:"'id' pk autoincr unique notnull" json:"id"`
 	Login         string `xorm:"text index not null unique 'login'" json:"login"`
-	Email         string `xorm:"text index unique 'email'" json:"email"`
+	Email         string `xorm:"text 'email'" json:"email"`
 	Password      string `xorm:"text not null 'password'" json:"-"`
 	PasswordEtime uint64 `json:"password_etime"`
 	Created       uint64 `xorm:"created" json:"created"`

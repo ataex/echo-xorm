@@ -28,7 +28,7 @@ var _ = Describe("Test GET /users", func() {
 	})
 })
 
-var _ = Describe("Test GET /user/:id", func() {
+var _ = Describe("Test GET /users/:id", func() {
 	Context("with 3 random id", func() {
 		It("should respond properly", func() {
 			for i := 0; i < 3; i++ {
@@ -45,6 +45,32 @@ var _ = Describe("Test GET /user/:id", func() {
 				Expect(http.StatusOK).To(Equal(resp.StatusCode()))
 				Expect(result).To(BeEquivalentTo(orig))
 			}
+		})
+	})
+})
+
+var _ = Describe("Test POST /users", func() {
+	Context("Post predefined user", func() {
+		It("should respond properly", func() {
+			result := new(users.User)
+			payload := users.Input{
+				Login:    "a_test_user_01",
+				Password: "a_test_user_01",
+			}
+			// http request
+			resp, err := suite.rc.R().SetBody(payload).SetResult(result).Post("/users/")
+			Expect(err).NotTo(HaveOccurred())
+			Expect(http.StatusCreated).To(Equal(resp.StatusCode()))
+			Expect(result.ID).NotTo(BeZero())
+			Expect(result.Login).To(Equal(payload.Login))
+			Expect(result.Created).NotTo(BeZero())
+			Expect(result.Updated).NotTo(BeZero())
+			// get original user
+			orig := new(users.User)
+			found, err := suite.app.C.Orm.ID(result.ID).Omit("password").Get(orig)
+			Expect(err).NotTo(HaveOccurred())
+			Expect(found).To(BeTrue())
+			Expect(result).To(BeEquivalentTo(orig))
 		})
 	})
 })

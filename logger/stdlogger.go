@@ -30,8 +30,8 @@ func (l *StdLogger) Info(values ...interface{}) {
 	l.logTagged("info", values...)
 }
 
-// Err logs "error" messages. First value should be Event string
-func (l *StdLogger) Err(values ...interface{}) {
+// Error logs "error" messages. First value should be Event string
+func (l *StdLogger) Error(values ...interface{}) {
 	l.logTagged("error", values...)
 }
 

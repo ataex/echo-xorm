@@ -54,6 +54,8 @@ func (a *Application) initOrm() error {
 		return err
 	}
 	// turn on logs
+	ormLogger := logger.NewOrmLogger(a.C.Logger)
+	a.C.Orm.SetLogger(ormLogger)
 	a.C.Orm.ShowSQL(true)
 	// migrate
 	err = a.migrateDb()

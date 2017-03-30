@@ -55,7 +55,7 @@ func main() {
 			if a.C.Orm != nil {
 				err = a.C.Orm.Close()
 				if err != nil {
-					a.C.Logger.Err("appcontrol", os.Args[0]+" db closing error on "+sig.String())
+					a.C.Logger.Error("appcontrol", os.Args[0]+" db closing error on "+sig.String())
 				}
 			}
 			if a.C.Logger != nil {

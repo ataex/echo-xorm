@@ -9,8 +9,8 @@ import (
 	"github.com/corvinusz/echo-xorm/ctx"
 )
 
-// UserInput represents payload data format
-type UserInput struct {
+// Input represents payload data format
+type Input struct {
 	Login    string `json:"login"`
 	Password string `json:"password"`
 }
@@ -55,7 +55,7 @@ func (h *Handler) CreateUser(c echo.Context) error {
 		status int
 		err    error
 		user   User
-		input  UserInput
+		input  Input
 	)
 
 	if err = c.Bind(&input); err != nil {
@@ -86,7 +86,7 @@ func (h *Handler) CreateUser(c echo.Context) error {
 // PutUser is a PUT /users/{id} handler
 func (h *Handler) PutUser(c echo.Context) error {
 	var (
-		input  UserInput
+		input  Input
 		user   User
 		id     uint64
 		err    error
