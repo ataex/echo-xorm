@@ -1,6 +1,9 @@
 package users
 
 import (
+	"errors"
+	"net/http"
+
 	"github.com/go-xorm/xorm"
 	"golang.org/x/crypto/bcrypt"
 )
@@ -34,12 +37,19 @@ func (u *User) FindAll(orm *xorm.Engine) ([]User, error) {
 }
 
 // Find user in database
-func (u *User) Find(orm *xorm.Engine) (bool, error) {
-	return orm.Get(u)
+func (u *User) Find(orm *xorm.Engine) (int, error) {
+	found, err := orm.Get(u)
+	if err != nil {
+		return http.StatusServiceUnavailable, err
+	}
+	if !found {
+		return http.StatusNotFound, errors.New("user not found")
+	}
+	return http.StatusOK, nil
 }
 
 // Save user to database
-func (u *User) Save(orm *xorm.Engine) (int64, error) {
+func (u *User) Save(orm *xorm.Engine) (int, error) {
 	var (
 		err      error
 		hash     []byte
@@ -47,72 +57,95 @@ func (u *User) Save(orm *xorm.Engine) (int64, error) {
 	)
 	affected, err = orm.Where("login = ?", u.Login).Count(&User{})
 	if err != nil {
-		return 0, err
+		return http.StatusServiceUnavailable, err
 	}
 	if affected != 0 {
-		return 0, nil
+		return http.StatusConflict, errors.New("such user always exists")
 	}
 
 	// encrypt password
 	hash, err = bcrypt.GenerateFromPassword([]byte(u.Password), bcrypt.DefaultCost)
 	if err != nil {
-		return 0, err
+		return http.StatusServiceUnavailable, err
+	}
+	u.Password = string(hash[:])
+
+	affected, err = orm.InsertOne(u)
+	if err != nil {
+		return http.StatusServiceUnavailable, err
+	}
+	if affected == 0 {
+		return http.StatusUnprocessableEntity, errors.New("db refused to insert such user")
 	}
 
-	u.Password = string(hash[:])
-	affected, err = orm.InsertOne(u)
-	return affected, err
+	return http.StatusCreated, nil
 }
 
 // Update user in database
-func (u *User) Update(orm *xorm.Engine) (int64, error) {
+func (u *User) Update(orm *xorm.Engine) (int, error) {
 	var (
-		err   error
-		found bool
-		user  User
+		err      error
+		found    bool
+		user     User
+		affected int64
 	)
 	// get old user data (and check if user exists)
 	found, err = orm.ID(u.ID).Get(&user)
 	if err != nil {
-		return 0, err
+		return http.StatusServiceUnavailable, err
 	}
 	if !found {
-		return 0, nil
+		return http.StatusNotFound, errors.New("user not found")
 	}
-	//update: u.X goes to user.X
-	err = user.updateFieldsFrom(u)
+	err = u.setFieldsFrom(user)
 	if err != nil {
-		return 0, nil
+		return http.StatusServiceUnavailable, err
 	}
-	return orm.ID(user.ID).Update(&user)
-	// TODO: copy user data to u after Update to sync Created and Update
+	affected, err = orm.Update(u)
+	if err != nil {
+		return http.StatusServiceUnavailable, err
+	}
+	if affected != 0 {
+		return http.StatusUnprocessableEntity, errors.New("db refused to update")
+	}
+	return http.StatusOK, nil
 }
 
 // Delete user from database
-func (u *User) Delete(orm *xorm.Engine) (int64, error) {
+func (u *User) Delete(orm *xorm.Engine) (int, error) {
 	var (
-		err   error
-		found bool
-		user  User
+		err      error
+		found    bool
+		affected int64
+		user     User
 	)
 	// check if user exists
 	found, err = orm.ID(u.ID).Get(&user)
 	if err != nil {
-		return 0, err
+		return http.StatusServiceUnavailable, err
 	}
 	if !found {
-		return 0, nil
+		return http.StatusNotFound, errors.New("user not exists")
 	}
 	//delete
-	return orm.ID(u.ID).Delete(&User{})
+	affected, err = orm.ID(u.ID).Delete(&User{})
+	if err != nil {
+		return http.StatusServiceUnavailable, err
+	}
+	if affected == 0 {
+		return http.StatusUnprocessableEntity, errors.New("db refused to delete user")
+	}
+	return http.StatusOK, nil
 }
 
 //------------------------------------------------------------------------------
-func (u *User) updateFieldsFrom(user *User) error {
-	if len(user.Login) != 0 {
+func (u *User) setFieldsFrom(user User) error {
+	if len(u.Login) == 0 {
 		u.Login = user.Login
 	}
-	if len(user.Password) != 0 {
+	if len(u.Password) == 0 {
+		u.Password = user.Password
+	} else {
 		hash, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
 		if err != nil {
 			return err

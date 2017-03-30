@@ -24,7 +24,7 @@ type Handler struct {
 func (h *Handler) GetAllUsers(c echo.Context) error {
 	users, err := new(User).FindAll(h.C.Orm)
 	if err != nil {
-		return err
+		return c.String(http.StatusServiceUnavailable, err.Error())
 	}
 	return c.JSON(http.StatusOK, users)
 }
@@ -32,9 +32,9 @@ func (h *Handler) GetAllUsers(c echo.Context) error {
 // GetUser is a GET /users/{id} handler
 func (h *Handler) GetUser(c echo.Context) error {
 	var (
-		user  User
-		err   error
-		found bool
+		user   User
+		err    error
+		status int
 	)
 
 	user.ID, err = strconv.ParseUint(c.Param("id"), 10, 0)
@@ -42,12 +42,9 @@ func (h *Handler) GetUser(c echo.Context) error {
 		return c.String(http.StatusBadRequest, err.Error())
 	}
 
-	found, err = user.Find(h.C.Orm)
+	status, err = user.Find(h.C.Orm)
 	if err != nil {
-		return c.String(http.StatusServiceUnavailable, err.Error())
-	}
-	if !found {
-		return c.NoContent(http.StatusNoContent)
+		return c.String(status, err.Error())
 	}
 	return c.JSON(http.StatusOK, user)
 }
@@ -55,40 +52,45 @@ func (h *Handler) GetUser(c echo.Context) error {
 // CreateUser is a POST /users handler
 func (h *Handler) CreateUser(c echo.Context) error {
 	var (
-		affected int64
-		err      error
-		user     User
-		input    UserInput
+		status int
+		err    error
+		user   User
+		input  UserInput
 	)
 
 	if err = c.Bind(&input); err != nil {
 		return c.String(http.StatusBadRequest, err.Error())
 	}
 
+	// validate
+	if len(input.Login) == 0 {
+		return c.String(http.StatusBadRequest, "login not recognized")
+	}
+	if len(input.Password) == 0 {
+		return c.String(http.StatusBadRequest, "password not recognized")
+	}
+
+	// create
 	user = User{
 		Login:    input.Login,
 		Password: input.Password,
 	}
-
-	affected, err = user.Save(h.C.Orm)
+	// save
+	status, err = user.Save(h.C.Orm)
 	if err != nil {
-		return c.String(http.StatusServiceUnavailable, err.Error())
+		return c.String(status, err.Error())
 	}
-	if affected == 0 {
-		return c.String(http.StatusConflict, err.Error())
-	}
-
 	return c.JSON(http.StatusCreated, user)
 }
 
 // PutUser is a PUT /users/{id} handler
 func (h *Handler) PutUser(c echo.Context) error {
 	var (
-		input    UserInput
-		user     User
-		id       uint64
-		err      error
-		affected int64
+		input  UserInput
+		user   User
+		id     uint64
+		err    error
+		status int
 	)
 	// parse id
 	id, err = strconv.ParseUint(c.Param("id"), 10, 0)
@@ -106,12 +108,9 @@ func (h *Handler) PutUser(c echo.Context) error {
 		Password: input.Password,
 	}
 	// update
-	affected, err = user.Update(h.C.Orm)
+	status, err = user.Update(h.C.Orm)
 	if err != nil {
-		return c.String(http.StatusServiceUnavailable, err.Error())
-	}
-	if affected == 0 {
-		return c.String(http.StatusConflict, err.Error())
+		return c.String(status, err.Error())
 	}
 	return c.JSON(http.StatusOK, user)
 }
@@ -119,10 +118,10 @@ func (h *Handler) PutUser(c echo.Context) error {
 // DeleteUser is a DELETE /users/{id} handler
 func (h *Handler) DeleteUser(c echo.Context) error {
 	var (
-		id       uint64
-		affected int64
-		err      error
-		user     User
+		id     uint64
+		status int
+		err    error
+		user   User
 	)
 
 	id, err = strconv.ParseUint(c.Param("id"), 10, 0)
@@ -132,13 +131,9 @@ func (h *Handler) DeleteUser(c echo.Context) error {
 
 	user.ID = id
 	// delete
-	affected, err = user.Delete(h.C.Orm)
+	status, err = user.Delete(h.C.Orm)
 	if err != nil {
-		return c.String(http.StatusServiceUnavailable, err.Error())
+		return c.String(status, err.Error())
 	}
-	if affected == 0 {
-		return c.String(http.StatusConflict, err.Error())
-	}
-
 	return c.NoContent(http.StatusOK)
 }

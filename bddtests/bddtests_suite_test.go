@@ -88,13 +88,7 @@ func (suite *LsxTestSuite) setupServer() error {
 
 // setupFixtures writes test data to database from fixtures
 func (suite *LsxTestSuite) setupFixtures() error {
-	db := suite.app.C.Orm.DB().DB
-	fixtures, err := testfixtures.NewFolder(db, &testfixtures.SQLite{}, fixturesFolder)
-	if err != nil {
-		return err
-	}
-	err = fixtures.Load()
-	return err
+	return testfixtures.LoadFixtures(fixturesFolder, suite.app.C.Orm.DB().DB, &testfixtures.SQLite{})
 }
 
 // waitServerStart redials server til OK or timeout

@@ -41,7 +41,6 @@ func (h *Handler) PostAuth(c echo.Context) error {
 		input authInput
 		user  users.User
 		err   error
-		found bool
 	)
 
 	if err = c.Bind(&input); err != nil {
@@ -50,12 +49,9 @@ func (h *Handler) PostAuth(c echo.Context) error {
 
 	// find user
 	user = users.User{Login: input.Login}
-	found, err = user.Find(h.C.Orm)
+	_, err = user.Find(h.C.Orm)
 	if err != nil {
-		return c.String(http.StatusServiceUnavailable, err.Error())
-	}
-	if !found {
-		return c.String(http.StatusForbidden, "user not found")
+		return c.String(http.StatusUnauthorized, err.Error())
 	}
 
 	//validate user credentials

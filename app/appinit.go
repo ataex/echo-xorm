@@ -3,6 +3,7 @@ package app
 import (
 	"errors"
 	"io/ioutil"
+	"net/http"
 	"os"
 	"strconv"
 
@@ -75,6 +76,12 @@ func (a *Application) migrateDb() error {
 // initDbData installs hardcoded data from config
 func (a *Application) initDbData() error {
 	user := &users.User{Login: "admin", Password: "admin"} // aaaa, backdoor
-	_, err := user.Save(a.C.Orm)
+	status, err := user.Save(a.C.Orm)
+	if err == nil {
+		return nil
+	}
+	if status == http.StatusConflict {
+		return nil
+	}
 	return err
 }
