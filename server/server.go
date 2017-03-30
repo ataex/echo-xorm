@@ -3,8 +3,10 @@ package server
 import (
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/middleware"
+	//"github.com/labstack/gommon/log"
 
 	"github.com/corvinusz/echo-xorm/ctx"
+	"github.com/corvinusz/echo-xorm/logger"
 	"github.com/corvinusz/echo-xorm/server/auth"
 	"github.com/corvinusz/echo-xorm/server/users"
 	"github.com/corvinusz/echo-xorm/server/version"
@@ -28,9 +30,10 @@ func New(c *ctx.Context) *Server {
 func (s *Server) Run() {
 	// Echo instance
 	e := echo.New()
+	//e.Logger.SetLevel(log.ERROR)
 
 	// Global Middleware
-	e.Use(middleware.Logger())
+	e.Use(logger.HTTPLogger(s.context.Logger))
 	e.Use(middleware.Recover())
 
 	var (

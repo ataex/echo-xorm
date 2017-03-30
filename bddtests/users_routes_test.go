@@ -22,7 +22,8 @@ var _ = Describe("Test GET /users", func() {
 			resp, err := suite.rc.R().SetResult(&result).Get("/users")
 			Expect(err).NotTo(HaveOccurred())
 			Expect(http.StatusOK).To(Equal(resp.StatusCode()))
-			Expect(len(result)).To(Equal(8))
+			Expect(len(orig)).To(BeNumerically(">=", 5))
+			Expect(len(result)).To(Equal(len(orig)))
 			Expect(result).To(BeEquivalentTo(orig))
 		})
 	})
@@ -58,7 +59,7 @@ var _ = Describe("Test POST /users", func() {
 				Password: "a_test_user_01",
 			}
 			// http request
-			resp, err := suite.rc.R().SetBody(payload).SetResult(result).Post("/users/")
+			resp, err := suite.rc.R().SetBody(payload).SetResult(result).Post("/users")
 			Expect(err).NotTo(HaveOccurred())
 			Expect(http.StatusCreated).To(Equal(resp.StatusCode()))
 			Expect(result.ID).NotTo(BeZero())
