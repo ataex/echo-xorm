@@ -6,7 +6,7 @@
  *
  */
 
-package main // license/lsx/lsx-admin-backend/main.go
+package main // license/lsx/cmd/lsx-admin-backend/main.go
 
 import (
 	"flag"

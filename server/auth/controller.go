@@ -35,22 +35,6 @@ type versionResponse struct {
 	Version    string `json:"version"`
 }
 
-/*
-// handler for /version
-func (h *authHandler) getVersion(c echo.Context) error {
-	vr := versionResponse{
-		ServerTime: uint64(time.Now().Unix()),
-		Version:    time.Now().String(),
-	}
-	return c.JSON(http.StatusOK, vr)
-}
-
-type authResponse struct {
-	Result string `json:"result"`
-	Token  string `json:"token"`
-}
-*/
-
 // PostAuth is handler for /auth
 func (h *Handler) PostAuth(c echo.Context) error {
 	var (
