@@ -8,6 +8,7 @@
 -
     id: 1
     created: 1459096113
+    updated: 1459096113
     login: admin
     password: $2a$10$WUwK.b4F6BoXjBoq1ORpTONnXwrnoyA2EA7BfS9iNNEJRmkg8oGXq
     # email: license-server-admin@ncloudtech.ru
@@ -15,6 +16,7 @@
 -
     id: 2
     created: 1459099564
+    updated: 1459099564
     login: a_test_user_02
     password: $2a$10$3ehIfTxd/aa.2EdEin5ysuQyvmcQn4eLC5coxobvjBMLe5cYPj06G
     # email: a_test_user_02@ncloudtech.ru
@@ -22,6 +24,7 @@
 -
     id: 3
     created: 1459099588
+    updated: 1459099588
     login: a_test_user_03
     password: $2a$10$A0xIEMZL9Qi1fjYM9LX/VO/aj25M5weoV2OAnf.guAdwZZE8HnDW2
     # email: a_test_user_03@ncloudtech.ru
@@ -29,6 +32,7 @@
 -
     id: 4
     created: 1459099605
+    updated: 1459099605
     login: a_test_user_04
 #    email: a_test_user_04@ncloudtech.ru
     password: $2a$10$t8YERAiHZ50yT62unzeRsuLw9OeQq4Vt9Ccb4SPOx5otZdgtEigfq
@@ -36,6 +40,7 @@
 -
     id: 5
     created: 1459099654
+    updated: 1459099654
     login: a_test_user_05
 #    email: a_test_user_05@ncloudtech.ru
     password: $2a$10$g9YS/Jlofvq88BT9IiLO7ekiZ5jUS8x.H3tUI1q45rrFC8q.EwXJ.
@@ -43,6 +48,7 @@
 -
     id: 6
     created: 1459099669
+    updated: 1459099669
     login: a_test_user_06
 #    email: a_test_user_06@ncloudtech.ru
     password: $2a$10$HEa/u6XqKAfUb/MdcsASMePR1ZH71D8Nct.yOVZuHBoj4h5C4C2Qq
@@ -50,6 +56,7 @@
 -
     id: 7
     created: 1459099686
+    updated: 1459099686
     login: a_test_user_07
 #    email: a_test_user_07@ncloudtech.ru
     password: $2a$10$QoIdUvo9rz08l3y.Z8ukQe8NiBDSgBUPEq5LeZ0Sub.dNqR4K2Gja
@@ -57,6 +64,7 @@
 -
     id: 8
     created: 1459099686
+    updated: 1459099686
     login: a_test_operator_08
 #    email: a_test_operator_08@ncloudtech.ru
     password: $2a$10$fwPsCs9ZMZxzGZLwh1KCruLOyEe64smCNvIEtex5ld6WPK6Ci6GFe

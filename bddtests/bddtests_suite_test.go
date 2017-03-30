@@ -1,6 +1,12 @@
 package bddtests_test
 
 import (
+	"errors"
+	"fmt"
+	"net"
+	"testing"
+	"time"
+
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 
@@ -9,13 +15,9 @@ import (
 	"gopkg.in/resty.v0"
 	"gopkg.in/testfixtures.v2"
 
-	"fmt"
-	"net"
-	"testing"
-	"time"
-
 	"github.com/corvinusz/echo-xorm/app"
 	"github.com/corvinusz/echo-xorm/ctx"
+	"github.com/corvinusz/echo-xorm/server/auth"
 )
 
 func TestBddtests(t *testing.T) {
@@ -37,8 +39,10 @@ var _ = AfterSuite(func() {
 	}
 })
 
-const cfgFileName = "./test-config/echo-xorm-test-config.toml"
-const fixturesFolder = "./fixtures"
+const (
+	cfgFileName    = "./test-config/echo-xorm-test-config.toml"
+	fixturesFolder = "./fixtures"
+)
 
 // LsxTestSuite is testing context for app
 type LsxTestSuite struct {
@@ -48,51 +52,50 @@ type LsxTestSuite struct {
 }
 
 // SetupTest called once before test
-func (suite *LsxTestSuite) setupSuite() error {
-	err := suite.setupServer()
+func (s *LsxTestSuite) setupSuite() error {
+	err := s.setupServer()
 	if err != nil {
 		return err
 	}
-	suite.baseURL = "http://localhost:" + suite.app.C.Config.Port
+	s.baseURL = "http://localhost:" + s.app.C.Config.Port
 	// create and setup resty client
-	suite.rc = resty.DefaultClient
-	suite.rc.SetHeader("Content-Type", "application/json")
-	suite.rc.SetHostURL(suite.baseURL)
+	s.rc = resty.DefaultClient
+	s.rc.SetHeader("Content-Type", "application/json")
+	s.rc.SetHostURL(s.baseURL)
+	// get auth token
+	s.authorizeMe("admin", "admin")
 	return nil
 }
 
-// setupServer prepares testing server with test data
-func (suite *LsxTestSuite) setupServer() error {
+//------------------------------------------------------------------------------
+func (s *LsxTestSuite) setupServer() error {
 	var err error
 	// init test application
-	appFlags := &ctx.Flags{
-		CfgFileName: cfgFileName,
-	}
-
-	suite.app, err = app.New(appFlags)
+	s.app, err = app.New(&ctx.Flags{CfgFileName: cfgFileName})
 	if err != nil {
 		return err
 	}
-
-	// load test fixtures
-	err = suite.setupFixtures()
+	// load fixtures
+	err = s.setupFixtures()
 	if err != nil {
 		return err
 	}
-
-	// start test server
-	go suite.app.Run()
+	// start test server with go routine
+	go s.app.Run()
 	// wait til server started then return
-	return suite.waitServerStart(3 * time.Second)
+	return s.waitServerStart(3 * time.Second)
 }
 
-// setupFixtures writes test data to database from fixtures
-func (suite *LsxTestSuite) setupFixtures() error {
-	return testfixtures.LoadFixtures(fixturesFolder, suite.app.C.Orm.DB().DB, &testfixtures.SQLite{})
+//------------------------------------------------------------------------------
+func (s *LsxTestSuite) setupFixtures() error {
+	return testfixtures.LoadFixtures(
+		fixturesFolder,
+		s.app.C.Orm.DB().DB,
+		&testfixtures.SQLite{})
 }
 
-// waitServerStart redials server til OK or timeout
-func (suite *LsxTestSuite) waitServerStart(timeout time.Duration) error {
+//------------------------------------------------------------------------------
+func (s *LsxTestSuite) waitServerStart(timeout time.Duration) error {
 	const sleepTime = 300 * time.Millisecond
 	dialer := &net.Dialer{
 		DualStack: false,
@@ -102,12 +105,34 @@ func (suite *LsxTestSuite) waitServerStart(timeout time.Duration) error {
 	}
 	done := time.Now().Add(timeout)
 	for time.Now().Before(done) {
-		c, err := dialer.Dial("tcp", ":"+suite.app.C.Config.Port)
+		c, err := dialer.Dial("tcp", ":"+s.app.C.Config.Port)
 		if err == nil {
 			return c.Close()
 		}
-		fmt.Println(err.Error())
 		time.Sleep(sleepTime)
 	}
-	return fmt.Errorf("cannot connect %v for %v", suite.baseURL, timeout)
+	return fmt.Errorf("cannot connect %v for %v", s.baseURL, timeout)
+}
+
+//------------------------------------------------------------------------------
+func (s *LsxTestSuite) authorizeMe(login, password string) error {
+	// make authorization
+	payload := auth.Input{
+		Login:    login,
+		Password: password,
+	}
+	result := new(auth.Result)
+	response, err := s.rc.R().SetBody(payload).SetResult(result).Post("/auth")
+	if err != nil {
+		return err
+	}
+
+	// check response and set token
+	if response.StatusCode() != 200 {
+		return errors.New("auth response status is not 200 (not OK)")
+	}
+	// set auth token
+	s.rc.SetAuthToken(result.Token)
+	// return
+	return nil
 }

@@ -3,6 +3,7 @@ package users
 import (
 	"errors"
 	"net/http"
+	"time"
 
 	"github.com/go-xorm/xorm"
 	"golang.org/x/crypto/bcrypt"
@@ -15,10 +16,11 @@ type User struct {
 	Email         string `xorm:"text index unique 'email'" json:"email"`
 	Password      string `xorm:"text not null 'password'" json:"-"`
 	PasswordEtime uint64 `json:"password_etime"`
+	Created       uint64 `xorm:"created" json:"created"`
+	Updated       uint64 `xorm:"updated" json:"updated"`
 	//Group         ctx.Group `json:"group" xorm:"-"`
 	//GroupID uint64 `json:"-" xorm:"'group_id' index"`
-	Created uint64 `xorm:"created" json:"created"`
-	Updated uint64 `xorm:"updated" json:"updated"`
+
 }
 
 // TableName used by xorm to set table name for entity
@@ -70,6 +72,8 @@ func (u *User) Save(orm *xorm.Engine) (int, error) {
 	}
 	u.Password = string(hash[:])
 
+	u.Created = uint64(time.Now().UTC().Unix())
+	u.Updated = u.Created
 	affected, err = orm.InsertOne(u)
 	if err != nil {
 		return http.StatusServiceUnavailable, err
@@ -101,6 +105,7 @@ func (u *User) Update(orm *xorm.Engine) (int, error) {
 	if err != nil {
 		return http.StatusServiceUnavailable, err
 	}
+	u.Updated = uint64(time.Now().UTC().Unix())
 	affected, err = orm.Update(u)
 	if err != nil {
 		return http.StatusServiceUnavailable, err

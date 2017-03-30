@@ -18,27 +18,22 @@ type Handler struct {
 	Key []byte
 }
 
-// authInput represents payload data format
-type authInput struct {
+// Input represents payload data format
+type Input struct {
 	Login    string `json:"login"`
 	Password string `json:"password"`
 }
 
-// authResponse represents payload response format
-type authResponse struct {
+// Result represents payload response format
+type Result struct {
 	Result string `json:"result"`
 	Token  string `json:"token"`
-}
-
-type versionResponse struct {
-	ServerTime uint64 `json:"server_time"`
-	Version    string `json:"version"`
 }
 
 // PostAuth is handler for /auth
 func (h *Handler) PostAuth(c echo.Context) error {
 	var (
-		input authInput
+		input Input
 		user  users.User
 		err   error
 	)
@@ -76,31 +71,9 @@ func (h *Handler) PostAuth(c echo.Context) error {
 		return c.String(http.StatusServiceUnavailable, "Error while signing the token:"+err.Error())
 	}
 
-	resp := authResponse{
+	resp := Result{
 		Result: "OK",
 		Token:  t,
 	}
 	return c.JSON(http.StatusOK, resp)
 }
-
-/*
-// Set custom claims
-claims := &jwtCustomClaims{
-    "Jon Snow",
-    true,
-    jwt.StandardClaims{
-        ExpiresAt: time.Now().Add(time.Hour * 72).Unix(),
-    },
-}
-
-// Create token with claims
-token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-
-// Generate encoded token and send it as response.
-t, err := token.SignedString([]byte("secret"))
-if err != nil {
-    return err
-}
-return c.JSON(http.StatusOK, echo.Map{
-    "token": t,
-})*/

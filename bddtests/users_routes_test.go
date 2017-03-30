@@ -1,5 +1,54 @@
 package bddtests_test
 
+import (
+	"math/rand"
+	"net/http"
+	"strconv"
+
+	. "github.com/onsi/ginkgo"
+	. "github.com/onsi/gomega"
+
+	"github.com/corvinusz/echo-xorm/server/users"
+)
+
+var _ = Describe("Test GET /users", func() {
+	Context("Get all users", func() {
+		It("should respond properly", func() {
+			var orig, result []users.User
+			// get orig
+			err := suite.app.C.Orm.Omit("password").Find(&orig)
+			Expect(err).NotTo(HaveOccurred())
+			// get resp
+			resp, err := suite.rc.R().SetResult(&result).Get("/users")
+			Expect(err).NotTo(HaveOccurred())
+			Expect(http.StatusOK).To(Equal(resp.StatusCode()))
+			Expect(len(result)).To(Equal(8))
+			Expect(result).To(BeEquivalentTo(orig))
+		})
+	})
+})
+
+var _ = Describe("Test GET /user/:id", func() {
+	Context("with 3 random id", func() {
+		It("should respond properly", func() {
+			for i := 0; i < 3; i++ {
+				id := rand.Int()%7 + 1
+				orig := new(users.User)
+				result := new(users.User)
+				// get orig
+				found, err := suite.app.C.Orm.ID(id).Omit("password").Get(orig)
+				Expect(err).NotTo(HaveOccurred())
+				Expect(found).To(BeTrue())
+				// get resp
+				resp, err := suite.rc.R().SetResult(result).Get("/users/" + strconv.Itoa(id))
+				Expect(err).NotTo(HaveOccurred())
+				Expect(http.StatusOK).To(Equal(resp.StatusCode()))
+				Expect(result).To(BeEquivalentTo(orig))
+			}
+		})
+	})
+})
+
 /*
 import (
 	"encoding/json"
