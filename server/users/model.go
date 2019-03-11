@@ -12,15 +12,13 @@ import (
 // User is an entity (here are DB definitions)
 type User struct {
 	ID            uint64 `xorm:"'id' pk autoincr unique notnull" json:"id"`
-	Login         string `xorm:"text index not null unique 'login'" json:"login"`
-	Email         string `xorm:"text 'email'" json:"email"`
+	Email         string `xorm:"text index not null unique 'email'" json:"email"`
+	DisplayName   string `xorm:"'display_name'" json:"display_name"`
 	Password      string `xorm:"text not null 'password'" json:"-"`
-	PasswordEtime uint64 `json:"password_etime"`
+	PasswordEtime uint64 `xorm:"'password_etime'" json:"password_etime"`
+	PasswordURL   string `xorm:"'password_url'" json:"password_url"`
 	Created       uint64 `xorm:"created" json:"created"`
 	Updated       uint64 `xorm:"updated" json:"updated"`
-	//Group         ctx.Group `json:"group" xorm:"-"`
-	//GroupID uint64 `json:"-" xorm:"'group_id' index"`
-
 }
 
 // TableName used by xorm to set table name for entity
@@ -57,7 +55,7 @@ func (u *User) Save(orm *xorm.Engine) (int, error) {
 		hash     []byte
 		affected int64
 	)
-	affected, err = orm.Where("login = ?", u.Login).Count(&User{})
+	affected, err = orm.Where("email = ?", u.Email).Count(&User{})
 	if err != nil {
 		return http.StatusServiceUnavailable, err
 	}
@@ -145,8 +143,8 @@ func (u *User) Delete(orm *xorm.Engine) (int, error) {
 
 //------------------------------------------------------------------------------
 func (u *User) setFieldsFrom(user User) error {
-	if len(u.Login) == 0 {
-		u.Login = user.Login
+	if len(u.Email) == 0 {
+		u.Email = user.Email
 	}
 	if len(u.Password) == 0 {
 		u.Password = user.Password

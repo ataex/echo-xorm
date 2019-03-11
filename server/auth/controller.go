@@ -18,9 +18,9 @@ type Handler struct {
 	Key []byte
 }
 
-// Input represents payload data format
-type Input struct {
-	Login    string `json:"login"`
+// PostBody represents payload data format
+type PostBody struct {
+	Email    string `json:"email"`
 	Password string `json:"password"`
 }
 
@@ -33,24 +33,24 @@ type Result struct {
 // PostAuth is handler for /auth
 func (h *Handler) PostAuth(c echo.Context) error {
 	var (
-		input Input
-		user  users.User
-		err   error
+		body PostBody
+		user users.User
+		err  error
 	)
 
-	if err = c.Bind(&input); err != nil {
+	if err = c.Bind(&body); err != nil {
 		return c.String(http.StatusBadRequest, err.Error())
 	}
 
 	// find user
-	user = users.User{Login: input.Login}
+	user = users.User{Email: body.Email}
 	_, err = user.Find(h.C.Orm)
 	if err != nil {
 		return c.String(http.StatusUnauthorized, err.Error())
 	}
 
 	//validate user credentials
-	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(input.Password))
+	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(body.Password))
 	if err != nil {
 		return c.String(http.StatusForbidden, "invalid credentials")
 	}
@@ -60,10 +60,9 @@ func (h *Handler) PostAuth(c echo.Context) error {
 
 	//set claims
 	claims := token.Claims.(jwt.MapClaims)
-	claims["iss"] = "corvinusz/echo-xorm"
+	claims["iss"] = user.Email
 	claims["iat"] = time.Now().UTC().Unix()
 	claims["exp"] = time.Now().Add(time.Hour * 72).UTC().Unix()
-	claims["aud"] = input.Login
 	claims["jti"] = user.ID
 
 	t, err := token.SignedString(h.Key)

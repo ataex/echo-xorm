@@ -9,10 +9,11 @@ import (
 	"github.com/corvinusz/echo-xorm/ctx"
 )
 
-// Input represents payload data format
-type Input struct {
-	Login    string `json:"login"`
-	Password string `json:"password"`
+// PostBody represents payload data format
+type PostBody struct {
+	Email       string `json:"email"`
+	DisplayName string `json:"display_name"`
+	Password    string `json:"password"`
 }
 
 // Handler is a container for handlers and app data
@@ -55,25 +56,26 @@ func (h *Handler) CreateUser(c echo.Context) error {
 		status int
 		err    error
 		user   User
-		input  Input
+		body   PostBody
 	)
 
-	if err = c.Bind(&input); err != nil {
+	if err = c.Bind(&body); err != nil {
 		return c.String(http.StatusBadRequest, err.Error())
 	}
 
 	// validate
-	if len(input.Login) == 0 {
+	if len(body.Email) == 0 {
 		return c.String(http.StatusBadRequest, "login not recognized")
 	}
-	if len(input.Password) == 0 {
+	if len(body.Password) == 0 {
 		return c.String(http.StatusBadRequest, "password not recognized")
 	}
 
 	// create
 	user = User{
-		Login:    input.Login,
-		Password: input.Password,
+		Email:       body.Email,
+		DisplayName: body.DisplayName,
+		Password:    body.Password,
 	}
 	// save
 	status, err = user.Save(h.C.Orm)
@@ -86,7 +88,7 @@ func (h *Handler) CreateUser(c echo.Context) error {
 // PutUser is a PUT /users/{id} handler
 func (h *Handler) PutUser(c echo.Context) error {
 	var (
-		input  Input
+		body   PostBody
 		user   User
 		id     uint64
 		err    error
@@ -98,14 +100,14 @@ func (h *Handler) PutUser(c echo.Context) error {
 		return c.String(http.StatusBadRequest, err.Error())
 	}
 	// parse request body
-	if err = c.Bind(&input); err != nil {
+	if err = c.Bind(&body); err != nil {
 		return c.String(http.StatusBadRequest, err.Error())
 	}
 	// construct user
 	user = User{
 		ID:       id,
-		Login:    input.Login,
-		Password: input.Password,
+		Email:    body.Email,
+		Password: body.Password,
 	}
 	// update
 	status, err = user.Update(h.C.Orm)

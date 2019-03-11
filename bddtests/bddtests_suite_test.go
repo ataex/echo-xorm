@@ -115,10 +115,10 @@ func (s *LsxTestSuite) waitServerStart(timeout time.Duration) error {
 }
 
 //------------------------------------------------------------------------------
-func (s *LsxTestSuite) authorizeMe(login, password string) error {
+func (s *LsxTestSuite) authorizeMe(email, password string) error {
 	// make authorization
-	payload := auth.Input{
-		Login:    login,
+	payload := auth.PostBody{
+		Email:    email,
 		Password: password,
 	}
 	result := new(auth.Result)
