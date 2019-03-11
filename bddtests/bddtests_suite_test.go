@@ -88,10 +88,11 @@ func (s *LsxTestSuite) setupServer() error {
 
 //------------------------------------------------------------------------------
 func (s *LsxTestSuite) setupFixtures() error {
-	return testfixtures.LoadFixtures(
-		fixturesFolder,
-		s.app.C.Orm.DB().DB,
-		&testfixtures.SQLite{})
+	fixtures, err := testfixtures.NewFolder(s.app.C.Orm.DB().DB, &testfixtures.SQLite{}, fixturesFolder)
+	if err != nil {
+		return err
+	}
+	return fixtures.Load()
 }
 
 //------------------------------------------------------------------------------
