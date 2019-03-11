@@ -12,7 +12,7 @@ import (
 
 	_ "github.com/lib/pq"
 	_ "github.com/mattn/go-sqlite3"
-	"gopkg.in/resty.v0"
+	"gopkg.in/resty.v1"
 	"gopkg.in/testfixtures.v2"
 
 	"github.com/corvinusz/echo-xorm/app"
