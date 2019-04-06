@@ -4,9 +4,11 @@ import (
 	"net/http"
 	"strconv"
 
-	echo "github.com/labstack/echo/v4"
-
 	"github.com/corvinusz/echo-xorm/app/ctx"
+	"github.com/corvinusz/echo-xorm/pkg/errors"
+	"github.com/corvinusz/echo-xorm/pkg/utils"
+
+	"github.com/labstack/echo/v4"
 )
 
 // PostBody represents payload data format
@@ -26,7 +28,8 @@ type Handler struct {
 func (h *Handler) GetAllUsers(c echo.Context) error {
 	users, err := FindAll(h.C.Orm)
 	if err != nil {
-		return c.String(http.StatusServiceUnavailable, err.Error())
+		h.C.Logger.Error(utils.GetEvent(c), err.Error())
+		return c.String(errors.Decompose(err))
 	}
 	return c.JSON(http.StatusOK, users)
 }
@@ -34,19 +37,21 @@ func (h *Handler) GetAllUsers(c echo.Context) error {
 // GetUser is a GET /users/{id} handler
 func (h *Handler) GetUser(c echo.Context) error {
 	var (
-		user   User
-		err    error
-		status int
+		user User
+		err  error
 	)
 
 	user.ID, err = strconv.ParseUint(c.Param("id"), 10, 0)
 	if err != nil {
-		return c.String(http.StatusBadRequest, err.Error())
+		err = errors.NewWithCode(http.StatusBadRequest, "request paramer read error; "+err.Error())
+		h.C.Logger.Error(utils.GetEvent(c), err.Error())
+		return c.String(errors.Decompose(err))
 	}
 
-	status, err = user.Find(h.C.Orm)
+	err = user.FindOne(h.C.Orm)
 	if err != nil {
-		return c.String(status, err.Error())
+		h.C.Logger.Error(utils.GetEvent(c), err.Error())
+		return c.String(errors.Decompose(err))
 	}
 	return c.JSON(http.StatusOK, user)
 }
@@ -56,80 +61,82 @@ func (h *Handler) CreateUser(c echo.Context) error {
 	var body PostBody
 	err := c.Bind(&body)
 	if err != nil {
-		return c.String(http.StatusBadRequest, err.Error())
+		err = errors.NewWithCode(http.StatusBadRequest, "request body read error; "+err.Error())
+		h.C.Logger.Error(utils.GetEvent(c), err.Error())
+		return c.String(errors.Decompose(err))
 	}
 	// validate
 	if len(body.Email) == 0 {
-		return c.String(http.StatusBadRequest, "email not recognized")
+		err = errors.NewWithCode(http.StatusBadRequest, "email not recognized; "+err.Error())
+		h.C.Logger.Error(utils.GetEvent(c), err.Error())
+		return c.String(errors.Decompose(err))
 	}
 	if len(body.Password) == 0 {
-		return c.String(http.StatusBadRequest, "password not recognized")
+		err = errors.NewWithCode(http.StatusBadRequest, "password not recognized; "+err.Error())
+		h.C.Logger.Error(utils.GetEvent(c), err.Error())
+		return c.String(errors.Decompose(err))
+
 	}
 
 	// create
-	user := NewUser(&body)
-	if user == nil {
-		return c.String(http.StatusServiceUnavailable, "password encoding error")
+	user, err := NewUser(&body)
+	if err != nil {
+		return c.String(errors.Decompose(err))
 	}
 	// save
-	status, err := user.Save(h.C.Orm)
+	err = user.Save(h.C.Orm)
 	if err != nil {
-		return c.String(status, err.Error())
+		return c.String(errors.Decompose(err))
 	}
 	return c.JSON(http.StatusCreated, user)
 }
 
 // PutUser is a PUT /users/{id} handler
 func (h *Handler) PutUser(c echo.Context) error {
-	var (
-		body   PostBody
-		user   User
-		id     uint64
-		err    error
-		status int
-	)
+	var body PostBody
 	// parse id
-	id, err = strconv.ParseUint(c.Param("id"), 10, 0)
+	id, err := strconv.ParseUint(c.Param("id"), 10, 0)
 	if err != nil {
-		return c.String(http.StatusBadRequest, err.Error())
+		err = errors.NewWithCode(http.StatusBadRequest, "request paramer read error; "+err.Error())
+		h.C.Logger.Error(utils.GetEvent(c), err.Error())
+		return c.String(errors.Decompose(err))
 	}
 	// parse request body
 	if err = c.Bind(&body); err != nil {
-		return c.String(http.StatusBadRequest, err.Error())
+		err = errors.NewWithCode(http.StatusBadRequest, "request body read error; "+err.Error())
+		h.C.Logger.Error(utils.GetEvent(c), err.Error())
+		return c.String(errors.Decompose(err))
 	}
 	// construct user
-	user = User{
+	user := User{
 		ID:       id,
 		Email:    body.Email,
 		Password: body.Password,
 	}
 	// update
-	status, err = user.Update(h.C.Orm)
+	err = user.Update(h.C.Orm)
 	if err != nil {
-		return c.String(status, err.Error())
+		return c.String(errors.Decompose(err))
 	}
 	return c.JSON(http.StatusOK, user)
 }
 
 // DeleteUser is a DELETE /users/{id} handler
 func (h *Handler) DeleteUser(c echo.Context) error {
-	var (
-		id     uint64
-		status int
-		err    error
-		user   User
-	)
+	var user User
 
-	id, err = strconv.ParseUint(c.Param("id"), 10, 0)
+	id, err := strconv.ParseUint(c.Param("id"), 10, 0)
 	if err != nil {
-		return c.String(http.StatusBadRequest, err.Error())
+		err = errors.NewWithCode(http.StatusBadRequest, "request paramer read error; "+err.Error())
+		h.C.Logger.Error(utils.GetEvent(c), err.Error())
+		return c.String(errors.Decompose(err))
 	}
 
 	user.ID = id
 	// delete
-	status, err = user.Delete(h.C.Orm)
+	err = user.Delete(h.C.Orm)
 	if err != nil {
-		return c.String(status, err.Error())
+		return c.String(errors.Decompose(err))
 	}
 	return c.NoContent(http.StatusOK)
 }

@@ -177,12 +177,15 @@ func (a *Application) migrateDb() error {
 // initDbData installs hardcoded data from config
 func (a *Application) initDbData() error {
 	user := &users.User{Email: "admin", DisplayName: "admin", Password: "admin"} // aaaa, backdoor
-	status, err := user.Save(a.Ctx.Orm)
+	err := user.Save(a.Ctx.Orm)
 	if err == nil {
 		return nil
 	}
+	status, _ := errors.Decompose(err)
 	if status == http.StatusConflict {
 		return nil
 	}
+	err = errors.NewWithPrefix(err, "database error")
+	a.Ctx.Logger.Error("application init error", err.Error())
 	return err
 }

@@ -4,12 +4,14 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/corvinusz/echo-xorm/app/ctx"
+	"github.com/corvinusz/echo-xorm/app/server/users"
+	"github.com/corvinusz/echo-xorm/pkg/errors"
+	"github.com/corvinusz/echo-xorm/pkg/utils"
+
 	jwt "github.com/dgrijalva/jwt-go"
 	echo "github.com/labstack/echo/v4"
 	"golang.org/x/crypto/bcrypt"
-
-	"github.com/corvinusz/echo-xorm/app/ctx"
-	"github.com/corvinusz/echo-xorm/app/server/users"
 )
 
 // Handler represents handlers for '/auth'
@@ -32,27 +34,29 @@ type Result struct {
 
 // PostAuth is handler for /auth
 func (h *Handler) PostAuth(c echo.Context) error {
-	var (
-		body PostBody
-		user users.User
-		err  error
-	)
+	var body PostBody
 
-	if err = c.Bind(&body); err != nil {
+	err := c.Bind(&body)
+	if err != nil {
+		err = errors.NewWithPrefix(err, "request body parse error")
+		h.C.Logger.Error(utils.GetEvent(c), err.Error())
 		return c.String(http.StatusBadRequest, err.Error())
 	}
 
 	// find user
-	user = users.User{Email: body.Email}
-	_, err = user.Find(h.C.Orm)
+	user := users.User{Email: body.Email}
+	err = user.FindOne(h.C.Orm)
 	if err != nil {
-		return c.String(http.StatusUnauthorized, err.Error())
+		h.C.Logger.Error(utils.GetEvent(c), err.Error())
+		return c.NoContent(http.StatusUnauthorized)
 	}
 
 	//validate user credentials
 	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(body.Password))
 	if err != nil {
-		return c.String(http.StatusForbidden, "invalid credentials")
+		err = errors.NewWithPrefix(err, "compare hash and password")
+		h.C.Logger.Error(utils.GetEvent(c), err.Error())
+		return c.NoContent(http.StatusUnauthorized)
 	}
 
 	//create a HMAC SHA256 signer
@@ -67,7 +71,9 @@ func (h *Handler) PostAuth(c echo.Context) error {
 
 	t, err := token.SignedString(h.Key)
 	if err != nil {
-		return c.String(http.StatusServiceUnavailable, "Error while signing the token:"+err.Error())
+		err = errors.NewWithPrefix(err, "token signing error")
+		h.C.Logger.Error(utils.GetEvent(c), err.Error())
+		return c.NoContent(http.StatusUnauthorized)
 	}
 
 	resp := Result{
