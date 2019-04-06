@@ -15,9 +15,9 @@ import (
 	"gopkg.in/resty.v1"
 	"gopkg.in/testfixtures.v2"
 
-	"github.com/corvinusz/echo-xorm/cmd/app"
-	"github.com/corvinusz/echo-xorm/cmd/ctx"
-	"github.com/corvinusz/echo-xorm/cmd/server/auth"
+	"github.com/corvinusz/echo-xorm/app"
+	"github.com/corvinusz/echo-xorm/app/ctx"
+	"github.com/corvinusz/echo-xorm/app/server/auth"
 )
 
 func TestBddtests(t *testing.T) {
@@ -25,10 +25,10 @@ func TestBddtests(t *testing.T) {
 	RunSpecs(t, "Bddtests Suite")
 }
 
-var suite *LsxTestSuite
+var suite *EchoTestSuite
 
 var _ = BeforeSuite(func() {
-	suite = new(LsxTestSuite)
+	suite = new(EchoTestSuite)
 	err := suite.setupSuite()
 	Expect(err).NotTo(HaveOccurred())
 })
@@ -44,15 +44,15 @@ const (
 	fixturesFolder = "./fixtures"
 )
 
-// LsxTestSuite is testing context for app
-type LsxTestSuite struct {
+// EchoTestSuite is testing context for app
+type EchoTestSuite struct {
 	app     *app.Application
 	baseURL string
 	rc      *resty.Client
 }
 
 // SetupTest called once before test
-func (s *LsxTestSuite) setupSuite() error {
+func (s *EchoTestSuite) setupSuite() error {
 	err := s.setupServer()
 	if err != nil {
 		return err
@@ -68,7 +68,7 @@ func (s *LsxTestSuite) setupSuite() error {
 }
 
 //------------------------------------------------------------------------------
-func (s *LsxTestSuite) setupServer() error {
+func (s *EchoTestSuite) setupServer() error {
 	var err error
 	// init test application
 	s.app, err = app.New(&ctx.Flags{CfgFileName: cfgFileName})
@@ -87,7 +87,7 @@ func (s *LsxTestSuite) setupServer() error {
 }
 
 //------------------------------------------------------------------------------
-func (s *LsxTestSuite) setupFixtures() error {
+func (s *EchoTestSuite) setupFixtures() error {
 	fixtures, err := testfixtures.NewFolder(s.app.C.Orm.DB().DB, &testfixtures.SQLite{}, fixturesFolder)
 	if err != nil {
 		return err
@@ -96,7 +96,7 @@ func (s *LsxTestSuite) setupFixtures() error {
 }
 
 //------------------------------------------------------------------------------
-func (s *LsxTestSuite) waitServerStart(timeout time.Duration) error {
+func (s *EchoTestSuite) waitServerStart(timeout time.Duration) error {
 	const sleepTime = 300 * time.Millisecond
 	dialer := &net.Dialer{
 		DualStack: false,
@@ -116,7 +116,7 @@ func (s *LsxTestSuite) waitServerStart(timeout time.Duration) error {
 }
 
 //------------------------------------------------------------------------------
-func (s *LsxTestSuite) authorizeMe(email, password string) error {
+func (s *EchoTestSuite) authorizeMe(email, password string) error {
 	// make authorization
 	payload := auth.PostBody{
 		Email:    email,
