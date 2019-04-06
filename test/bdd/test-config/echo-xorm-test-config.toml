@@ -1,7 +1,5 @@
-title = "Echo-xorm Web Application Configuration"
+title = "Echo-xorm TESTING Web Application Configuration"
 
-secret = "jwt-super-secret"
-version = "0.0.1"
 # PORT for web-API of admin application
 port = "11116"
 

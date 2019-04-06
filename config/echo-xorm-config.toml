@@ -1,8 +1,6 @@
 title = "Echo-xorm Web Application Configuration"
 
-secret = "jwt-super-secret"
-version = "0.0.1"
-# PORT for web-API of admin application
+# PORT for web-API application
 port = "11111"
 
 [database]

@@ -1,43 +1,45 @@
 package server
 
 import (
-	echo "github.com/labstack/echo/v4"
-	middleware "github.com/labstack/echo/v4/middleware"
-	//"github.com/labstack/gommon/log"
+	"context"
 
 	"github.com/corvinusz/echo-xorm/app/ctx"
 	"github.com/corvinusz/echo-xorm/app/server/auth"
 	"github.com/corvinusz/echo-xorm/app/server/users"
 	"github.com/corvinusz/echo-xorm/app/server/version"
 	"github.com/corvinusz/echo-xorm/pkg/logger"
+
+	echo "github.com/labstack/echo/v4"
+	middleware "github.com/labstack/echo/v4/middleware"
+	//"github.com/labstack/gommon/log"
 )
 
 // Server is an main application object that shared (read-only) to application modules
 type Server struct {
-	context    *ctx.Context
-	signingKey []byte
+	context *ctx.Context
+	echoSrv *echo.Echo
 }
 
 // New constructor
 func New(c *ctx.Context) *Server {
 	s := new(Server)
 	s.context = c
-	s.signingKey = []byte(c.Config.Secret)
+	s.echoSrv = echo.New()
 	return s
 }
 
 // Run registers API and starts http-server
 func (s *Server) Run() {
-	// Echo instance
-	e := echo.New()
+	e := s.echoSrv
 	//e.Logger.SetLevel(log.ERROR)
 
 	// Global Middleware
+	e.Pre(middleware.RemoveTrailingSlash())
 	e.Use(logger.HTTPLogger(s.context.Logger))
 	e.Use(middleware.Recover())
 
 	var (
-		authHandler    = auth.Handler{C: s.context, Key: s.signingKey}
+		authHandler    = auth.Handler{C: s.context, Key: s.context.JWTSignKey}
 		versionHandler = version.Handler{C: s.context}
 		usersHandler   = users.Handler{C: s.context}
 	)
@@ -49,7 +51,7 @@ func (s *Server) Run() {
 	// restricted
 	r := e.Group("")
 	// group middleware
-	r.Use(middleware.JWT(s.signingKey))
+	r.Use(middleware.JWT(s.context.JWTSignKey))
 	// users
 	r.POST("/users", usersHandler.CreateUser)
 	r.GET("/users", usersHandler.GetAllUsers)
@@ -58,10 +60,16 @@ func (s *Server) Run() {
 	r.DELETE("/users/:id", usersHandler.DeleteUser)
 
 	// start server
+	e.HideBanner = true
 	e.Server.Addr = ":" + s.context.Config.Port
 	s.context.Logger.Info("appcontrol", "starting server at "+e.Server.Addr)
 	err := e.Start(e.Server.Addr)
 	if err != nil {
 		s.context.Logger.Error("appcontrol", err.Error())
 	}
+}
+
+// Shutdown gracefully stops server
+func (s Server) Shutdown() error {
+	return s.echoSrv.Shutdown(context.Background())
 }

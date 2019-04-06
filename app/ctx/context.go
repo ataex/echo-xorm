@@ -8,10 +8,11 @@ import (
 
 // Context is a gate to application services
 type Context struct {
-	Orm    *xorm.Engine
-	Logger logger.Logger
-	Config *Config
-	Flags  *Flags
+	Orm        *xorm.Engine
+	Logger     logger.Logger
+	Config     *Config
+	Flags      *Flags
+	JWTSignKey []byte
 }
 
 // Flags represents start mode parameters for application
@@ -21,7 +22,6 @@ type Flags struct {
 
 // Config is a storage for admin application configuration
 type Config struct {
-	Secret   string `toml:"secret"`
 	Version  string `toml:"version"`
 	Port     string `toml:"port"`
 	Database struct {
