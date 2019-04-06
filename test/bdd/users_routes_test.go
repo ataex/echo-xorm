@@ -16,7 +16,7 @@ var _ = Describe("Test GET /users", func() {
 		It("should respond properly", func() {
 			var orig, result []users.User
 			// get orig
-			err := suite.app.C.Orm.Omit("password").Find(&orig)
+			err := suite.app.Ctx.Orm.Omit("password").Find(&orig)
 			Expect(err).NotTo(HaveOccurred())
 			// get resp
 			resp, err := suite.rc.R().SetResult(&result).Get("/users")
@@ -37,7 +37,7 @@ var _ = Describe("Test GET /users/:id", func() {
 				orig := new(users.User)
 				result := new(users.User)
 				// get orig
-				found, err := suite.app.C.Orm.ID(id).Omit("password").Get(orig)
+				found, err := suite.app.Ctx.Orm.ID(id).Omit("password").Get(orig)
 				Expect(err).NotTo(HaveOccurred())
 				Expect(found).To(BeTrue())
 				// get resp
@@ -72,7 +72,7 @@ var _ = Describe("Test POST /users", func() {
 			Expect(result.Updated).NotTo(BeZero())
 			// get original user
 			fromDb := new(users.User)
-			found, err := suite.app.C.Orm.ID(result.ID).Omit("password").Get(fromDb)
+			found, err := suite.app.Ctx.Orm.ID(result.ID).Omit("password").Get(fromDb)
 			Expect(err).NotTo(HaveOccurred())
 			Expect(found).To(BeTrue())
 			Expect(result).To(BeEquivalentTo(fromDb))

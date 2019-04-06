@@ -33,8 +33,8 @@ var _ = BeforeSuite(func() {
 })
 
 var _ = AfterSuite(func() {
-	if suite.app.C.Orm != nil {
-		suite.app.C.Orm.Close()
+	if suite.app.Ctx.Orm != nil {
+		suite.app.Ctx.Orm.Close()
 	}
 })
 
@@ -56,7 +56,7 @@ func (s *EchoTestSuite) setupSuite() error {
 	if err != nil {
 		return err
 	}
-	s.baseURL = "http://localhost:" + s.app.C.Config.Port
+	s.baseURL = "http://localhost:" + s.app.Ctx.Config.Port
 	// create and setup resty client
 	s.rc = resty.DefaultClient
 	s.rc.SetHeader("Content-Type", "application/json")
@@ -87,7 +87,7 @@ func (s *EchoTestSuite) setupServer() error {
 
 //------------------------------------------------------------------------------
 func (s *EchoTestSuite) setupFixtures() error {
-	fixtures, err := testfixtures.NewFolder(s.app.C.Orm.DB().DB, &testfixtures.SQLite{}, fixturesFolder)
+	fixtures, err := testfixtures.NewFolder(s.app.Ctx.Orm.DB().DB, &testfixtures.SQLite{}, fixturesFolder)
 	if err != nil {
 		return err
 	}
@@ -105,7 +105,7 @@ func (s *EchoTestSuite) waitServerStart(timeout time.Duration) error {
 	}
 	done := time.Now().Add(timeout)
 	for time.Now().Before(done) {
-		c, err := dialer.Dial("tcp", ":"+s.app.C.Config.Port)
+		c, err := dialer.Dial("tcp", ":"+s.app.Ctx.Config.Port)
 		if err == nil {
 			return c.Close()
 		}
