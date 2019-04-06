@@ -67,15 +67,14 @@ func (h *Handler) CreateUser(c echo.Context) error {
 	}
 	// validate
 	if len(body.Email) == 0 {
-		err = errors.NewWithCode(http.StatusBadRequest, "email not recognized; "+err.Error())
+		err = errors.NewWithCode(http.StatusBadRequest, "body validation error; email not recognized")
 		h.C.Logger.Error(utils.GetEvent(c), err.Error())
 		return c.String(errors.Decompose(err))
 	}
 	if len(body.Password) == 0 {
-		err = errors.NewWithCode(http.StatusBadRequest, "password not recognized; "+err.Error())
+		err = errors.NewWithCode(http.StatusBadRequest, "body validation error; password not recognized")
 		h.C.Logger.Error(utils.GetEvent(c), err.Error())
 		return c.String(errors.Decompose(err))
-
 	}
 
 	// create

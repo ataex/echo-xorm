@@ -62,8 +62,7 @@ func (s *EchoTestSuite) setupSuite() error {
 	s.rc.SetHeader("Content-Type", "application/json")
 	s.rc.SetHostURL(s.baseURL)
 	// get auth token
-	s.authorizeMe("admin", "admin")
-	return nil
+	return s.authorizeMe("admin", "admin")
 }
 
 //------------------------------------------------------------------------------
