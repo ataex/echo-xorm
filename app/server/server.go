@@ -1,8 +1,8 @@
 package server
 
 import (
-	"github.com/labstack/echo"
-	"github.com/labstack/echo/middleware"
+	echo "github.com/labstack/echo/v4"
+	middleware "github.com/labstack/echo/v4/middleware"
 	//"github.com/labstack/gommon/log"
 
 	"github.com/corvinusz/echo-xorm/app/ctx"

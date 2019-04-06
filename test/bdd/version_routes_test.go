@@ -4,7 +4,7 @@ import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 
-	"github.com/corvinusz/echo-xorm/server/version"
+	"github.com/corvinusz/echo-xorm/app/server/version"
 )
 
 var _ = Describe("Test /version", func() {

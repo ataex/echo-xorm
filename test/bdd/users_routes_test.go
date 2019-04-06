@@ -8,7 +8,7 @@ import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 
-	"github.com/corvinusz/echo-xorm/server/users"
+	"github.com/corvinusz/echo-xorm/app/server/users"
 )
 
 var _ = Describe("Test GET /users", func() {

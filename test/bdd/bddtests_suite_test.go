@@ -10,7 +10,6 @@ import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 
-	_ "github.com/lib/pq"
 	_ "github.com/mattn/go-sqlite3"
 	"gopkg.in/resty.v1"
 	"gopkg.in/testfixtures.v2"
