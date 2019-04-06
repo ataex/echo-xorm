@@ -4,7 +4,7 @@ import (
 	"net/http"
 	"time"
 
-	echo "github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v4"
 
 	"github.com/corvinusz/echo-xorm/app/ctx"
 )
