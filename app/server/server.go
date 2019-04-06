@@ -5,11 +5,11 @@ import (
 	"github.com/labstack/echo/middleware"
 	//"github.com/labstack/gommon/log"
 
-	"github.com/corvinusz/echo-xorm/ctx"
-	"github.com/corvinusz/echo-xorm/logger"
-	"github.com/corvinusz/echo-xorm/server/auth"
-	"github.com/corvinusz/echo-xorm/server/users"
-	"github.com/corvinusz/echo-xorm/server/version"
+	"github.com/corvinusz/echo-xorm/app/ctx"
+	"github.com/corvinusz/echo-xorm/app/server/auth"
+	"github.com/corvinusz/echo-xorm/app/server/users"
+	"github.com/corvinusz/echo-xorm/app/server/version"
+	"github.com/corvinusz/echo-xorm/pkg/logger"
 )
 
 // Server is an main application object that shared (read-only) to application modules

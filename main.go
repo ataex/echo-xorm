@@ -10,7 +10,7 @@ import (
 	_ "github.com/mattn/go-sqlite3"
 
 	"github.com/corvinusz/echo-xorm/app"
-	"github.com/corvinusz/echo-xorm/ctx"
+	"github.com/corvinusz/echo-xorm/app/ctx"
 )
 
 var (

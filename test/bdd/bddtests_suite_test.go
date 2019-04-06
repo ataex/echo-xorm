@@ -15,9 +15,9 @@ import (
 	"gopkg.in/resty.v1"
 	"gopkg.in/testfixtures.v2"
 
-	"github.com/corvinusz/echo-xorm/app"
-	"github.com/corvinusz/echo-xorm/ctx"
-	"github.com/corvinusz/echo-xorm/server/auth"
+	"github.com/corvinusz/echo-xorm/cmd/app"
+	"github.com/corvinusz/echo-xorm/cmd/ctx"
+	"github.com/corvinusz/echo-xorm/cmd/server/auth"
 )
 
 func TestBddtests(t *testing.T) {

@@ -54,9 +54,12 @@ var _ = Describe("Test POST /users", func() {
 	Context("Post predefined user", func() {
 		It("should respond properly", func() {
 			result := new(users.User)
+			passUrl := "a_test_user/password/url"
 			payload := users.PostBody{
-				Email:    "a_test_user_01",
-				Password: "a_test_user_01",
+				Email:       "a_test_user_01_email",
+				DisplayName: "a_test_user_01_name",
+				Password:    "a_test_user_01_password",
+				PasswordURL: &passUrl,
 			}
 			// http request
 			resp, err := suite.rc.R().SetBody(payload).SetResult(result).Post("/users")
@@ -64,6 +67,7 @@ var _ = Describe("Test POST /users", func() {
 			Expect(http.StatusCreated).To(Equal(resp.StatusCode()))
 			Expect(result.ID).NotTo(BeZero())
 			Expect(result.Email).To(Equal(payload.Email))
+			Expect(result.DisplayName).To(Equal(payload.DisplayName))
 			Expect(result.Created).NotTo(BeZero())
 			Expect(result.Updated).NotTo(BeZero())
 			// get original user

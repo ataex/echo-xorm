@@ -20,47 +20,41 @@ func NewOrmLogger(proxyLogger Logger) *OrmLogger {
 // Error implement core.ILogger
 func (l *OrmLogger) Error(v ...interface{}) {
 	l.proxy.Error("SQL", fmt.Sprint(v...))
-	return
 }
 
 // Errorf implement core.ILogger
 func (l *OrmLogger) Errorf(format string, v ...interface{}) {
 	l.proxy.Error("SQL", fmt.Sprintf(format, v...))
-	return
 }
 
 // Debug implement core.ILogger
 func (l *OrmLogger) Debug(v ...interface{}) {
-	l.Error(v)
+	l.Error(v...)
 }
 
 // Debugf implement core.ILogger
 func (l *OrmLogger) Debugf(format string, v ...interface{}) {
-	l.Errorf(format, v)
+	l.Errorf(format, v...)
 }
 
 // Info implement core.ILogger
 func (l *OrmLogger) Info(v ...interface{}) {
 	l.proxy.Info("SQL", fmt.Sprint(v...))
-	return
 }
 
 // Infof implement core.ILogger
 func (l *OrmLogger) Infof(format string, v ...interface{}) {
 	l.proxy.Info("SQL", fmt.Sprintf(format, v...))
-	return
 }
 
 // Warn implement core.ILogger
 func (l *OrmLogger) Warn(v ...interface{}) {
 	l.proxy.Warn("SQL", fmt.Sprint(v...))
-	return
 }
 
 // Warnf implement core.ILogger
 func (l *OrmLogger) Warnf(format string, v ...interface{}) {
 	l.proxy.Warn("SQL", fmt.Sprintf(format, v...))
-	return
 }
 
 // Level implement core.ILogger

@@ -6,14 +6,15 @@ import (
 
 	"github.com/labstack/echo"
 
-	"github.com/corvinusz/echo-xorm/ctx"
+	"github.com/corvinusz/echo-xorm/app/ctx"
 )
 
 // PostBody represents payload data format
 type PostBody struct {
-	Email       string `json:"email"`
-	DisplayName string `json:"display_name"`
-	Password    string `json:"password"`
+	Email       string  `json:"email"`
+	DisplayName string  `json:"display_name"`
+	PasswordURL *string `json:"password_url"`
+	Password    string  `json:"password"`
 }
 
 // Handler is a container for handlers and app data
@@ -23,7 +24,7 @@ type Handler struct {
 
 // GetAllUsers is a GET /users handler
 func (h *Handler) GetAllUsers(c echo.Context) error {
-	users, err := new(User).FindAll(h.C.Orm)
+	users, err := FindAll(h.C.Orm)
 	if err != nil {
 		return c.String(http.StatusServiceUnavailable, err.Error())
 	}
@@ -52,33 +53,26 @@ func (h *Handler) GetUser(c echo.Context) error {
 
 // CreateUser is a POST /users handler
 func (h *Handler) CreateUser(c echo.Context) error {
-	var (
-		status int
-		err    error
-		user   User
-		body   PostBody
-	)
-
-	if err = c.Bind(&body); err != nil {
+	var body PostBody
+	err := c.Bind(&body)
+	if err != nil {
 		return c.String(http.StatusBadRequest, err.Error())
 	}
-
 	// validate
 	if len(body.Email) == 0 {
-		return c.String(http.StatusBadRequest, "login not recognized")
+		return c.String(http.StatusBadRequest, "email not recognized")
 	}
 	if len(body.Password) == 0 {
 		return c.String(http.StatusBadRequest, "password not recognized")
 	}
 
 	// create
-	user = User{
-		Email:       body.Email,
-		DisplayName: body.DisplayName,
-		Password:    body.Password,
+	user := NewUser(&body)
+	if user == nil {
+		return c.String(http.StatusServiceUnavailable, "password encoding error")
 	}
 	// save
-	status, err = user.Save(h.C.Orm)
+	status, err := user.Save(h.C.Orm)
 	if err != nil {
 		return c.String(status, err.Error())
 	}

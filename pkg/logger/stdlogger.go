@@ -41,9 +41,7 @@ func (l *StdLogger) Warn(values ...interface{}) {
 }
 
 // Close for Stdlogger does nothing
-func (l *StdLogger) Close() {
-	return
-}
+func (l *StdLogger) Close() {}
 
 // main log implementaion
 func (l *StdLogger) logTagged(category string, values ...interface{}) {

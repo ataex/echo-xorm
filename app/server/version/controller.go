@@ -6,7 +6,7 @@ import (
 
 	"github.com/labstack/echo"
 
-	"github.com/corvinusz/echo-xorm/ctx"
+	"github.com/corvinusz/echo-xorm/app/ctx"
 )
 
 // Handler is a container for handlers and app data

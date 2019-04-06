@@ -1,6 +1,7 @@
 package users
 
 import (
+	"database/sql"
 	"errors"
 	"net/http"
 	"time"
@@ -11,14 +12,14 @@ import (
 
 // User is an entity (here are DB definitions)
 type User struct {
-	ID            uint64 `xorm:"'id' pk autoincr unique notnull" json:"id"`
-	Email         string `xorm:"text index not null unique 'email'" json:"email"`
-	DisplayName   string `xorm:"'display_name'" json:"display_name"`
-	Password      string `xorm:"text not null 'password'" json:"-"`
-	PasswordEtime uint64 `xorm:"'password_etime'" json:"password_etime"`
-	PasswordURL   string `xorm:"'password_url'" json:"password_url"`
-	Created       uint64 `xorm:"created" json:"created"`
-	Updated       uint64 `xorm:"updated" json:"updated"`
+	ID            uint64         `xorm:"'id' pk autoincr unique notnull" json:"id"`
+	Email         string         `xorm:"'email' text index not null unique" json:"email"`
+	DisplayName   string         `xorm:"'display_name' text" json:"display_name"`
+	Password      string         `xorm:"'password' text not null" json:"-"`
+	PasswordEtime uint64         `xorm:"'password_etime'" json:"password_etime"`
+	PasswordURL   sql.NullString `xorm:"'password_url' text unique" json:"password_url"`
+	Created       uint64         `xorm:"created" json:"created"`
+	Updated       uint64         `xorm:"updated" json:"updated"`
 }
 
 // TableName used by xorm to set table name for entity
@@ -26,13 +27,46 @@ func (u *User) TableName() string {
 	return "users"
 }
 
+// NewUser creates user from request body
+// returns *User with data from body
+// returns nil if error occured
+func NewUser(b *PostBody) *User {
+	u := &User{
+		Email:       b.Email,
+		DisplayName: b.DisplayName,
+	}
+	// password
+	hash, err := bcrypt.GenerateFromPassword([]byte(u.Password), bcrypt.DefaultCost)
+	if err != nil {
+		return nil
+	}
+	u.Password = string(hash[:])
+	// passwordURL
+	switch {
+	case b.PasswordURL == nil:
+		u.PasswordURL = sql.NullString{
+			Valid:  true,
+			String: "",
+		}
+	case *b.PasswordURL == "":
+		u.PasswordURL = sql.NullString{
+			Valid:  false,
+			String: "",
+		}
+	default:
+		u.PasswordURL = sql.NullString{
+			Valid:  true,
+			String: *b.PasswordURL,
+		}
+
+	}
+	return u
+}
+
 // FindAll users in database
-func (u *User) FindAll(orm *xorm.Engine) ([]User, error) {
-	var (
-		users []User
-		err   error
-	)
-	err = orm.Find(&users)
+func FindAll(orm *xorm.Engine) ([]User, error) {
+	users := []User{}
+	err := orm.Find(&users)
 	return users, err
 }
 
@@ -52,7 +86,6 @@ func (u *User) Find(orm *xorm.Engine) (int, error) {
 func (u *User) Save(orm *xorm.Engine) (int, error) {
 	var (
 		err      error
-		hash     []byte
 		affected int64
 	)
 	affected, err = orm.Where("email = ?", u.Email).Count(&User{})
@@ -62,13 +95,6 @@ func (u *User) Save(orm *xorm.Engine) (int, error) {
 	if affected != 0 {
 		return http.StatusConflict, errors.New("such user always exists")
 	}
-
-	// encrypt password
-	hash, err = bcrypt.GenerateFromPassword([]byte(u.Password), bcrypt.DefaultCost)
-	if err != nil {
-		return http.StatusServiceUnavailable, err
-	}
-	u.Password = string(hash[:])
 
 	u.Created = uint64(time.Now().UTC().Unix())
 	u.Updated = u.Created

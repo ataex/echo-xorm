@@ -3,7 +3,7 @@ package ctx
 import (
 	"github.com/go-xorm/xorm"
 
-	"github.com/corvinusz/echo-xorm/logger"
+	"github.com/corvinusz/echo-xorm/pkg/logger"
 )
 
 // Context is a gate to application services
