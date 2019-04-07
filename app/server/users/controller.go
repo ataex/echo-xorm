@@ -2,6 +2,7 @@ package users
 
 import (
 	"net/http"
+	"regexp"
 	"strconv"
 
 	"github.com/corvinusz/echo-xorm/app/ctx"
@@ -11,12 +12,15 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
+var reEmail = regexp.MustCompile(ctx.EmailValidation)
+
 // PostBody represents payload data format
 type PostBody struct {
-	Email       string  `json:"email"`
-	DisplayName string  `json:"display_name"`
-	PasswordURL *string `json:"password_url"`
-	Password    string  `json:"password"`
+	Email         string  `json:"email"`
+	Password      string  `json:"password"`
+	DisplayName   string  `json:"displayName"`
+	PasswordURL   *string `json:"passwordUrl"`
+	PasswordEtime uint64  `json:"passwordEtime"`
 }
 
 // Handler is a container for handlers and app data
@@ -57,7 +61,7 @@ func (h *Handler) GetUser(c echo.Context) error {
 }
 
 // CreateUser is a POST /users handler
-func (h *Handler) CreateUser(c echo.Context) error {
+func (h *Handler) PostUser(c echo.Context) error {
 	var body PostBody
 	err := c.Bind(&body)
 	if err != nil {
@@ -65,26 +69,20 @@ func (h *Handler) CreateUser(c echo.Context) error {
 		h.C.Logger.Error(utils.GetEvent(c), err.Error())
 		return c.String(errors.Decompose(err))
 	}
-	// validate
-	if len(body.Email) == 0 {
-		err = errors.NewWithCode(http.StatusBadRequest, "body validation error; email not recognized")
-		h.C.Logger.Error(utils.GetEvent(c), err.Error())
-		return c.String(errors.Decompose(err))
-	}
-	if len(body.Password) == 0 {
-		err = errors.NewWithCode(http.StatusBadRequest, "body validation error; password not recognized")
-		h.C.Logger.Error(utils.GetEvent(c), err.Error())
-		return c.String(errors.Decompose(err))
-	}
-
-	// create
-	user, err := NewUser(&body)
+	h.C.Logger.Info("debug", "body = ", body)
+	// validate body
+	err = validatePostBody(&body)
 	if err != nil {
+		err = errors.NewWithCode(http.StatusBadRequest, "request body validate error; "+err.Error())
+		h.C.Logger.Error(utils.GetEvent(c), err.Error())
 		return c.String(errors.Decompose(err))
 	}
+	// create
+	user := NewUser(&body)
 	// save
 	err = user.Save(h.C.Orm)
 	if err != nil {
+		h.C.Logger.Error(utils.GetEvent(c), err.Error())
 		return c.String(errors.Decompose(err))
 	}
 	return c.JSON(http.StatusCreated, user)
@@ -138,4 +136,16 @@ func (h *Handler) DeleteUser(c echo.Context) error {
 		return c.String(errors.Decompose(err))
 	}
 	return c.NoContent(http.StatusOK)
+}
+
+func validatePostBody(b *PostBody) error {
+	if !reEmail.MatchString(b.Email) {
+		if b.Email != "admin" {
+			return errors.New("invalid email")
+		}
+	}
+	if len(b.Password) < 6 || len(b.Password) > 100 {
+		return errors.New("invalid password")
+	}
+	return nil
 }

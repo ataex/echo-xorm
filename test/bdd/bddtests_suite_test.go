@@ -1,4 +1,4 @@
-package bddtests_test
+package bdd_test
 
 import (
 	"errors"
@@ -18,6 +18,16 @@ import (
 	"github.com/corvinusz/echo-xorm/app/ctx"
 	"github.com/corvinusz/echo-xorm/app/server/auth"
 )
+
+// TestData defines format of data to privide for POST/PUT tests
+type TestData struct {
+	Comment       string
+	JsonIn        string
+	JsonOut       string
+	Id            int
+	HttpCode      int
+	HaveToCheckDb bool
+}
 
 func TestBddtests(t *testing.T) {
 	RegisterFailHandler(Fail)

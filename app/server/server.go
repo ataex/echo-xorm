@@ -53,7 +53,7 @@ func (s *Server) Run() {
 	// group middleware
 	r.Use(middleware.JWT(s.context.JWTSignKey))
 	// users
-	r.POST("/users", usersHandler.CreateUser)
+	r.POST("/users", usersHandler.PostUser)
 	r.GET("/users", usersHandler.GetAllUsers)
 	r.GET("/users/:id", usersHandler.GetUser)
 	r.PUT("/users/:id", usersHandler.PutUser)

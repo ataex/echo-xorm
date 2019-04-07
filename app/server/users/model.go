@@ -15,10 +15,10 @@ import (
 type User struct {
 	ID            uint64         `xorm:"'id' pk autoincr unique notnull" json:"id"`
 	Email         string         `xorm:"'email' text index not null unique" json:"email"`
-	DisplayName   string         `xorm:"'display_name' text" json:"display_name"`
+	DisplayName   string         `xorm:"'display_name' text" json:"displayName"`
 	Password      string         `xorm:"'password' text not null" json:"-"`
-	PasswordEtime uint64         `xorm:"'password_etime'" json:"password_etime"`
-	PasswordURL   sql.NullString `xorm:"'password_url' text unique" json:"password_url"`
+	PasswordEtime uint64         `xorm:"'password_etime'" json:"passwordEtime"`
+	PasswordURL   sql.NullString `xorm:"'password_url' text unique" json:"passwordUrl"`
 	Created       uint64         `xorm:"created" json:"created"`
 	Updated       uint64         `xorm:"updated" json:"updated"`
 }
@@ -31,11 +31,12 @@ func (u *User) TableName() string {
 // NewUser creates user from request body
 // returns *User with data from body
 // returns nil if error occured
-func NewUser(b *PostBody) (*User, error) {
+func NewUser(b *PostBody) *User {
 	u := &User{
-		Email:       b.Email,
-		DisplayName: b.DisplayName,
-		Password:    b.Password,
+		Email:         b.Email,
+		DisplayName:   b.DisplayName,
+		Password:      b.Password,
+		PasswordEtime: b.PasswordEtime,
 	}
 	// passwordURL
 	switch {
@@ -55,7 +56,7 @@ func NewUser(b *PostBody) (*User, error) {
 		}
 
 	}
-	return u, nil
+	return u
 }
 
 // FindAll users in database
@@ -82,6 +83,133 @@ func (u *User) FindOne(orm *xorm.Engine) error {
 
 // Save user to database
 func (u *User) Save(orm *xorm.Engine) error {
+	err := u.validateDataToSave(orm)
+	if err != nil {
+		return err
+	}
+	// save to storage
+	affected, err := orm.InsertOne(u)
+	if err != nil {
+		return errors.NewWithPrefix(err, "database error")
+	}
+	if affected == 0 {
+		return errors.New("database error; db refused to insert")
+	}
+
+	return nil
+}
+
+// Update user in database
+func (u *User) Update(orm *xorm.Engine) error {
+	var old User
+	// get old user data (and check if user exists)
+	found, err := orm.ID(u.ID).Get(&old)
+	if err != nil {
+		return errors.NewWithPrefix(err, "database error")
+	}
+	if !found {
+		return errors.NewWithCode(http.StatusNotFound, "user not found")
+	}
+	err = u.setDataToUpdate(old)
+	if err != nil {
+		return err
+	}
+	u.Updated = uint64(time.Now().UTC().Unix())
+	affected, err := orm.Update(&u)
+	if err != nil {
+		return errors.NewWithPrefix(err, "database error")
+	}
+	if affected != 0 {
+		return errors.New("database error; db refused to update")
+	}
+	return nil
+}
+
+// Delete user from database
+func (u *User) Delete(orm *xorm.Engine) error {
+	var (
+		old User
+		erb error
+	)
+	tx := orm.NewSession()
+	defer tx.Close()
+	err := tx.Begin()
+	if err != nil {
+		return errors.NewWithPrefix(err, "database error")
+	}
+	// check if user exists
+	found, err := tx.ID(u.ID).Get(&old)
+	if err != nil {
+		erb = tx.Rollback()
+		if erb != nil {
+			erb = errors.NewWithPrefix(erb, err.Error())
+			return errors.NewWithPrefix(erb, "database error")
+		}
+		return errors.NewWithPrefix(err, "database error")
+	}
+	if !found {
+		err = errors.NewWithCode(http.StatusNotFound, "user not found")
+		erb = tx.Rollback()
+		if erb != nil {
+			erb = errors.NewWithPrefix(erb, err.Error())
+			return errors.NewWithPrefix(erb, "database error")
+		}
+		return err
+	}
+	//delete
+	affected, err := orm.ID(u.ID).Delete(&User{})
+	if err != nil {
+		erb = tx.Rollback()
+		if erb != nil {
+			erb = errors.NewWithPrefix(erb, err.Error())
+			return errors.NewWithPrefix(erb, "database error")
+		}
+
+		return errors.NewWithPrefix(err, "database error")
+	}
+	if affected == 0 {
+		err = errors.New("db refused to delete")
+		erb = tx.Rollback()
+		if erb != nil {
+			erb = errors.NewWithPrefix(erb, err.Error())
+			return errors.NewWithPrefix(erb, "database error")
+		}
+		return err
+	}
+
+	err = tx.Commit()
+	if err != nil {
+		erb = tx.Rollback()
+		if erb != nil {
+			erb = errors.NewWithPrefix(erb, err.Error())
+			return errors.NewWithPrefix(erb, "database error")
+		}
+		return errors.NewWithPrefix(err, "database error")
+	}
+	return nil
+}
+
+//------------------------------------------------------------------------------
+func (u *User) setDataToUpdate(old User) error {
+	// email
+	if len(u.Email) == 0 {
+		u.Email = old.Email
+	}
+	// password
+	if len(u.Password) == 0 {
+		u.Password = old.Password
+	} else {
+		hash, err := bcrypt.GenerateFromPassword([]byte(u.Password), bcrypt.DefaultCost)
+		if err != nil {
+			return errors.NewWithPrefix(err, "password hash generation error")
+		}
+		u.Password = string(hash[:8])
+	}
+	return nil
+}
+
+func (u *User) validateDataToSave(orm *xorm.Engine) error {
+	// email uniqueness
 	affected, err := orm.Where("email = ?", u.Email).Count(&User{})
 	if err != nil {
 		return errors.NewWithPrefix(err, "database error")
@@ -95,83 +223,9 @@ func (u *User) Save(orm *xorm.Engine) error {
 	if err != nil {
 		return errors.NewWithPrefix(err, "generate hash from password error")
 	}
-	u.Password = string(hash[:])
+	u.Password = string(hash)
 	// created/updated
 	u.Created = uint64(time.Now().UTC().Unix())
 	u.Updated = u.Created
-	// save to storage
-	affected, err = orm.InsertOne(u)
-	if err != nil {
-		return errors.NewWithPrefix(err, "database error")
-	}
-	if affected == 0 {
-		return errors.New("database error; db refused to insert")
-	}
-
-	return nil
-}
-
-// Update user in database
-func (u *User) Update(orm *xorm.Engine) error {
-	var oldUser User
-	// get old user data (and check if user exists)
-	found, err := orm.ID(u.ID).Get(&oldUser)
-	if err != nil {
-		return errors.NewWithPrefix(err, "database error")
-	}
-	if !found {
-		return errors.NewWithCode(http.StatusNotFound, "user not found")
-	}
-	err = u.setDataToUpdate(oldUser)
-	if err != nil {
-		return err
-	}
-	u.Updated = uint64(time.Now().UTC().Unix())
-	affected, err := orm.Update(u)
-	if err != nil {
-		return errors.NewWithPrefix(err, "database error")
-	}
-	if affected != 0 {
-		return errors.New("database error; db refused to update")
-	}
-	return nil
-}
-
-// Delete user from database
-func (u *User) Delete(orm *xorm.Engine) error {
-	var user User
-	// check if user exists
-	found, err := orm.ID(u.ID).Get(&user)
-	if err != nil {
-		return errors.NewWithPrefix(err, "database error")
-	}
-	if !found {
-		return errors.NewWithCode(http.StatusNotFound, "user not found")
-	}
-	//delete
-	affected, err := orm.ID(u.ID).Delete(&User{})
-	if err != nil {
-		return errors.NewWithPrefix(err, "database error")
-	}
-	if affected == 0 {
-		return errors.New("database error; db refused to delete")
-	}
-	return nil
-}
-
-//------------------------------------------------------------------------------
-func (u *User) setDataToUpdate(user User) error {
-	if len(u.Email) == 0 {
-		u.Email = user.Email
-	}
-	if len(u.Password) == 0 {
-		u.Password = user.Password
-	} else {
-		hash, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
-		if err != nil {
-			return errors.NewWithPrefix(err, "password hash generation error")
-		}
-		u.Password = string(hash[:8])
-	}
 	return nil
 }
