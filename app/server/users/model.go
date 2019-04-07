@@ -5,7 +5,9 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/corvinusz/echo-xorm/app/ctx"
 	"github.com/corvinusz/echo-xorm/pkg/errors"
+	"github.com/corvinusz/echo-xorm/pkg/utils"
 
 	"github.com/go-xorm/xorm"
 	"golang.org/x/crypto/bcrypt"
@@ -83,15 +85,12 @@ func (u *User) FindOne(orm *xorm.Engine) error {
 
 // Save user to database
 func (u *User) Save(orm *xorm.Engine) error {
-	var erb error // error of rollback
-	// create transaction
-	tx := orm.NewSession()
-	defer tx.Close()
 	// begin transaction
-	err := tx.Begin()
+	tx, err := utils.BeginTransaction(orm, ctx.LevelReadCommited)
 	if err != nil {
-		return errors.NewWithPrefix(err, "database error")
+		return err
 	}
+	defer tx.Close()
 	// validate data
 	err = u.validateDataToSave(tx)
 	if err != nil {
@@ -100,12 +99,7 @@ func (u *User) Save(orm *xorm.Engine) error {
 	// save data to storage
 	affected, err := tx.InsertOne(u)
 	if err != nil {
-		erb = tx.Rollback()
-		if erb != nil {
-			erb = errors.NewWithPrefix(erb, err.Error())
-			return errors.NewWithPrefix(erb, "database error")
-		}
-		return errors.NewWithPrefix(err, "database error")
+		return utils.RollbackTransaction(tx, err)
 	}
 	if affected == 0 {
 		return errors.New("database error; db refused to insert")
@@ -113,12 +107,7 @@ func (u *User) Save(orm *xorm.Engine) error {
 	// commit transaction
 	err = tx.Commit()
 	if err != nil {
-		erb = tx.Rollback()
-		if erb != nil {
-			erb = errors.NewWithPrefix(erb, err.Error())
-			return errors.NewWithPrefix(erb, "database error")
-		}
-		return errors.NewWithPrefix(err, "database error")
+		return utils.RollbackTransaction(tx, err)
 	}
 
 	return nil
@@ -126,15 +115,12 @@ func (u *User) Save(orm *xorm.Engine) error {
 
 // Update user in database
 func (u *User) Update(orm *xorm.Engine) error {
-	var erb error // error of rollback
-	// create transaction
-	tx := orm.NewSession()
-	defer tx.Close()
 	// begin transaction
-	err := tx.Begin()
+	tx, err := utils.BeginTransaction(orm, ctx.LevelReadCommited)
 	if err != nil {
-		return errors.NewWithPrefix(err, "database error")
+		return err
 	}
+	defer tx.Close()
 	// get old user data (and check if user exists)
 	old := &User{ID: u.ID}
 	found, err := tx.Get(old)
@@ -157,12 +143,7 @@ func (u *User) Update(orm *xorm.Engine) error {
 	// update
 	affected, err := tx.ID(u.ID).Update(u)
 	if err != nil {
-		erb = tx.Rollback()
-		if erb != nil {
-			erb = errors.NewWithPrefix(erb, err.Error())
-			return errors.NewWithPrefix(erb, "database error")
-		}
-		return errors.NewWithPrefix(err, "database error")
+		return utils.RollbackTransaction(tx, err)
 	}
 	if affected == 0 {
 		return errors.New("database error; db refused to update")
@@ -170,12 +151,7 @@ func (u *User) Update(orm *xorm.Engine) error {
 	// commit transaction
 	err = tx.Commit()
 	if err != nil {
-		erb = tx.Rollback()
-		if erb != nil {
-			erb = errors.NewWithPrefix(erb, err.Error())
-			return errors.NewWithPrefix(erb, "database error")
-		}
-		return errors.NewWithPrefix(err, "database error")
+		return utils.RollbackTransaction(tx, err)
 	}
 
 	return nil
@@ -183,15 +159,12 @@ func (u *User) Update(orm *xorm.Engine) error {
 
 // Delete user from database
 func (u *User) Delete(orm *xorm.Engine) error {
-	var erb error
-	// create transaction
-	tx := orm.NewSession()
-	defer tx.Close()
 	// begin transaction
-	err := tx.Begin()
+	tx, err := utils.BeginTransaction(orm, ctx.LevelReadCommited)
 	if err != nil {
-		return errors.NewWithPrefix(err, "database error")
+		return err
 	}
+	defer tx.Close()
 	// check if user exists
 	old := &User{ID: u.ID}
 	found, err := tx.Get(old)
@@ -204,25 +177,15 @@ func (u *User) Delete(orm *xorm.Engine) error {
 	// delete from storage
 	affected, err := tx.ID(u.ID).Delete(&User{})
 	if err != nil {
-		erb = tx.Rollback()
-		if erb != nil {
-			erb = errors.NewWithPrefix(erb, err.Error())
-			return errors.NewWithPrefix(erb, "database error")
-		}
-		return errors.NewWithPrefix(err, "database error")
+		return utils.RollbackTransaction(tx, err)
 	}
 	if affected == 0 {
 		return errors.New("db refused to delete")
 	}
-
+	// commit
 	err = tx.Commit()
 	if err != nil {
-		erb = tx.Rollback()
-		if erb != nil {
-			erb = errors.NewWithPrefix(erb, err.Error())
-			return errors.NewWithPrefix(erb, "database error")
-		}
-		return errors.NewWithPrefix(err, "database error")
+		return utils.RollbackTransaction(tx, err)
 	}
 	return nil
 }
