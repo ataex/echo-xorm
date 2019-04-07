@@ -95,11 +95,6 @@ func (u *User) Save(orm *xorm.Engine) error {
 	// validate data
 	err = u.validateDataToSave(tx)
 	if err != nil {
-		erb = tx.Rollback()
-		if erb != nil {
-			erb = errors.NewWithPrefix(erb, err.Error())
-			return errors.NewWithPrefix(erb, "database error")
-		}
 		return errors.NewWithPrefix(err, "database error")
 	}
 	// save data to storage
@@ -113,12 +108,7 @@ func (u *User) Save(orm *xorm.Engine) error {
 		return errors.NewWithPrefix(err, "database error")
 	}
 	if affected == 0 {
-		erb = tx.Rollback()
-		if erb != nil {
-			erb = errors.NewWithPrefix(erb, err.Error())
-			return errors.NewWithPrefix(erb, "database error")
-		}
-		return errors.NewWithPrefix(err, "database error")
+		return errors.New("database error; db refused to insert")
 	}
 	// commit transaction
 	err = tx.Commit()
@@ -136,9 +126,18 @@ func (u *User) Save(orm *xorm.Engine) error {
 
 // Update user in database
 func (u *User) Update(orm *xorm.Engine) error {
-	old := &User{ID: u.ID}
+	var erb error // error of rollback
+	// create transaction
+	tx := orm.NewSession()
+	defer tx.Close()
+	// begin transaction
+	err := tx.Begin()
+	if err != nil {
+		return errors.NewWithPrefix(err, "database error")
+	}
 	// get old user data (and check if user exists)
-	found, err := orm.Get(old)
+	old := &User{ID: u.ID}
+	found, err := tx.Get(old)
 	if err != nil {
 		return errors.NewWithPrefix(err, "database error")
 	}
@@ -151,53 +150,58 @@ func (u *User) Update(orm *xorm.Engine) error {
 		return err
 	}
 	// validate data to update
-	err = u.validateDataToUpdate(orm)
+	err = u.validateDataToUpdate(tx)
 	if err != nil {
 		return err
 	}
 	// update
-	affected, err := orm.ID(u.ID).Update(u)
+	affected, err := tx.ID(u.ID).Update(u)
 	if err != nil {
+		erb = tx.Rollback()
+		if erb != nil {
+			erb = errors.NewWithPrefix(erb, err.Error())
+			return errors.NewWithPrefix(erb, "database error")
+		}
 		return errors.NewWithPrefix(err, "database error")
 	}
 	if affected == 0 {
 		return errors.New("database error; db refused to update")
 	}
+	// commit transaction
+	err = tx.Commit()
+	if err != nil {
+		erb = tx.Rollback()
+		if erb != nil {
+			erb = errors.NewWithPrefix(erb, err.Error())
+			return errors.NewWithPrefix(erb, "database error")
+		}
+		return errors.NewWithPrefix(err, "database error")
+	}
+
 	return nil
 }
 
 // Delete user from database
 func (u *User) Delete(orm *xorm.Engine) error {
-	var (
-		old User
-		erb error
-	)
+	var erb error
+	// create transaction
 	tx := orm.NewSession()
 	defer tx.Close()
+	// begin transaction
 	err := tx.Begin()
 	if err != nil {
 		return errors.NewWithPrefix(err, "database error")
 	}
 	// check if user exists
-	found, err := tx.ID(u.ID).Get(&old)
+	old := &User{ID: u.ID}
+	found, err := tx.Get(old)
 	if err != nil {
-		erb = tx.Rollback()
-		if erb != nil {
-			erb = errors.NewWithPrefix(erb, err.Error())
-			return errors.NewWithPrefix(erb, "database error")
-		}
 		return errors.NewWithPrefix(err, "database error")
 	}
 	if !found {
-		err = errors.NewWithCode(http.StatusNotFound, "user not found")
-		erb = tx.Rollback()
-		if erb != nil {
-			erb = errors.NewWithPrefix(erb, err.Error())
-			return errors.NewWithPrefix(erb, "database error")
-		}
-		return err
+		return errors.NewWithCode(http.StatusNotFound, "user not found")
 	}
-	//delete
+	// delete from storage
 	affected, err := tx.ID(u.ID).Delete(&User{})
 	if err != nil {
 		erb = tx.Rollback()
@@ -205,17 +209,10 @@ func (u *User) Delete(orm *xorm.Engine) error {
 			erb = errors.NewWithPrefix(erb, err.Error())
 			return errors.NewWithPrefix(erb, "database error")
 		}
-
 		return errors.NewWithPrefix(err, "database error")
 	}
 	if affected == 0 {
-		err = errors.New("db refused to delete")
-		erb = tx.Rollback()
-		if erb != nil {
-			erb = errors.NewWithPrefix(erb, err.Error())
-			return errors.NewWithPrefix(erb, "database error")
-		}
-		return err
+		return errors.New("db refused to delete")
 	}
 
 	err = tx.Commit()
@@ -282,9 +279,9 @@ func (u *User) validateDataToSave(tx *xorm.Session) error {
 	return nil
 }
 
-func (u *User) validateDataToUpdate(orm *xorm.Engine) error {
+func (u *User) validateDataToUpdate(tx *xorm.Session) error {
 	// email uniqueness
-	affected, err := orm.Where("email = ?", u.Email).
+	affected, err := tx.Where("email = ?", u.Email).
 		And("id != ?", u.ID).Count(&User{})
 	if err != nil {
 		return errors.NewWithPrefix(err, "database error")
