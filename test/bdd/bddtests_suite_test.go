@@ -24,7 +24,7 @@ type TestData struct {
 	Comment       string
 	JsonIn        string
 	JsonOut       string
-	Id            int
+	ID            int
 	HttpCode      int
 	HaveToCheckDb bool
 }
@@ -43,9 +43,8 @@ var _ = BeforeSuite(func() {
 })
 
 var _ = AfterSuite(func() {
-	if suite.app.Ctx.Orm != nil {
-		suite.app.Ctx.Orm.Close()
-	}
+	time.Sleep(1 * time.Second)
+	suite.app.Shutdown() //nolint
 })
 
 const (

@@ -12,75 +12,8 @@ import (
 
 //------------------------------------------------------------------------------
 func testPostUsers() {
+	testData := initPostUsersTestData()
 	Context("POST /users", func() {
-		testData := []TestData{
-			// correct responses
-			{
-				Comment: "full post",
-				JsonIn: `{
-				"email": "post_users_test_email_001@example.com",
-				"password": "post_users_test_password_001",
-				"displayName": "post_users_test_name_001",
-				"passwordEtime":1
-				}`,
-				JsonOut: `{
-					"email": "post_users_test_email_001@example.com",
-					"displayName": "post_users_test_name_001",
-					"passwordEtime":1
-				}`,
-				HttpCode: 201,
-			},
-			{
-				Comment: "minimal post",
-				JsonIn: `{
-					"email": "post_users_test_email_002@example.com",
-					"password": "post_users_test_password_002"
-				}`,
-				JsonOut: `{
-					"email": "post_users_test_email_002@example.com"
-				}`,
-				HttpCode: 201,
-			},
-			// error checks
-			{
-				Comment:  "bad payload",
-				JsonIn:   `this is not a json; ' select 1;`,
-				HttpCode: 400,
-			},
-			{
-				Comment: "always existing email",
-				JsonIn: `{
-					"email": "admin",
-					"password":"adminx"
-				}`,
-				HttpCode: 409,
-			},
-			{
-				Comment: "deficient payload",
-				JsonIn: `{
-					"displayName": "post_users_test_name_003",
-					"password": "post_users_test_password"
-				}`,
-				HttpCode: 400,
-			},
-			{
-				Comment: "invalid email",
-				JsonIn: `{
-					"email": "post_users_test_email_003",
-					"password": "post_users_test_password"
-				}`,
-				HttpCode: 400,
-			},
-			{
-				Comment: "short password",
-				JsonIn: `{
-					"email": "post_users_test_email_003@example.com",
-					"password": "123"
-				}`,
-				HttpCode: 400,
-			},
-		}
-
 		for i := range testData {
 			i := i // dont remove, golang closure variable workaround
 			data := testData[i]
@@ -115,4 +48,75 @@ func testPostUsers() {
 			})
 		}
 	})
+}
+
+func initPostUsersTestData() []TestData {
+	return []TestData{
+		// correct responses
+		{
+			Comment: "full post",
+			JsonIn: `{
+			"email": "post_users_test_email_001@example.com",
+			"password": "post_users_test_password_001",
+			"displayName": "post_users_test_name_001",
+			"passwordEtime":1
+			}`,
+			JsonOut: `{
+				"email": "post_users_test_email_001@example.com",
+				"displayName": "post_users_test_name_001",
+				"passwordEtime":1
+			}`,
+			HttpCode: 201,
+		},
+		{
+			Comment: "minimal post",
+			JsonIn: `{
+				"email": "post_users_test_email_002@example.com",
+				"password": "post_users_test_password_002"
+			}`,
+			JsonOut: `{
+				"email": "post_users_test_email_002@example.com"
+			}`,
+			HttpCode: 201,
+		},
+		// error checks
+		{
+			Comment:  "bad payload",
+			JsonIn:   `this is not a json; ' select 1;`,
+			HttpCode: 400,
+		},
+		{
+			Comment: "always existing email",
+			JsonIn: `{
+				"email": "admin",
+				"password":"adminx"
+			}`,
+			HttpCode: 409,
+		},
+		{
+			Comment: "deficient payload",
+			JsonIn: `{
+				"displayName": "post_users_test_name_003",
+				"password": "post_users_test_password"
+			}`,
+			HttpCode: 400,
+		},
+		{
+			Comment: "invalid email",
+			JsonIn: `{
+				"email": "post_users_test_email_003",
+				"password": "post_users_test_password"
+			}`,
+			HttpCode: 400,
+		},
+		{
+			Comment: "short password",
+			JsonIn: `{
+				"email": "post_users_test_email_003@example.com",
+				"password": "123"
+			}`,
+			HttpCode: 400,
+		},
+	}
+
 }

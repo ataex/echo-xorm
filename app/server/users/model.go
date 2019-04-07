@@ -101,25 +101,31 @@ func (u *User) Save(orm *xorm.Engine) error {
 
 // Update user in database
 func (u *User) Update(orm *xorm.Engine) error {
-	var old User
+	old := &User{ID: u.ID}
 	// get old user data (and check if user exists)
-	found, err := orm.ID(u.ID).Get(&old)
+	found, err := orm.Get(old)
 	if err != nil {
 		return errors.NewWithPrefix(err, "database error")
 	}
 	if !found {
 		return errors.NewWithCode(http.StatusNotFound, "user not found")
 	}
+	// set data to update
 	err = u.setDataToUpdate(old)
 	if err != nil {
 		return err
 	}
-	u.Updated = uint64(time.Now().UTC().Unix())
-	affected, err := orm.Update(&u)
+	// validate data to update
+	err = u.validateDataToUpdate(orm)
+	if err != nil {
+		return err
+	}
+	// update
+	affected, err := orm.ID(u.ID).Update(u)
 	if err != nil {
 		return errors.NewWithPrefix(err, "database error")
 	}
-	if affected != 0 {
+	if affected == 0 {
 		return errors.New("database error; db refused to update")
 	}
 	return nil
@@ -190,10 +196,18 @@ func (u *User) Delete(orm *xorm.Engine) error {
 }
 
 //------------------------------------------------------------------------------
-func (u *User) setDataToUpdate(old User) error {
+func (u *User) setDataToUpdate(old *User) error {
 	// email
 	if len(u.Email) == 0 {
 		u.Email = old.Email
+	}
+	// displayName
+	if len(u.DisplayName) == 0 {
+		u.DisplayName = old.DisplayName
+	}
+	// passwordEtime
+	if u.PasswordEtime == 0 {
+		u.PasswordEtime = old.PasswordEtime
 	}
 	// password
 	if len(u.Password) == 0 {
@@ -205,6 +219,9 @@ func (u *User) setDataToUpdate(old User) error {
 		}
 		u.Password = string(hash[:8])
 	}
+	// created/updated
+	u.Created = old.Created
+	u.Updated = uint64(time.Now().UTC().Unix())
 	return nil
 }
 
@@ -227,5 +244,18 @@ func (u *User) validateDataToSave(orm *xorm.Engine) error {
 	// created/updated
 	u.Created = uint64(time.Now().UTC().Unix())
 	u.Updated = u.Created
+	return nil
+}
+
+func (u *User) validateDataToUpdate(orm *xorm.Engine) error {
+	// email uniqueness
+	affected, err := orm.Where("email = ?", u.Email).
+		And("id != ?", u.ID).Count(&User{})
+	if err != nil {
+		return errors.NewWithPrefix(err, "database error")
+	}
+	if affected != 0 {
+		return errors.NewWithCode(http.StatusConflict, "email already exists")
+	}
 	return nil
 }

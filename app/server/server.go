@@ -36,7 +36,6 @@ func (s *Server) Run() {
 	// Global Middleware
 	e.Pre(middleware.RemoveTrailingSlash())
 	e.Use(logger.HTTPLogger(s.context.Logger))
-	e.Use(middleware.Recover())
 
 	var (
 		authHandler    = auth.Handler{C: s.context, Key: s.context.JWTSignKey}
@@ -54,10 +53,10 @@ func (s *Server) Run() {
 	r.Use(middleware.JWT(s.context.JWTSignKey))
 	// users
 	r.POST("/users", usersHandler.PostUser)
+	r.PUT("/users/:id", usersHandler.PutUser)
 	r.GET("/users", usersHandler.GetAllUsers)
 	r.GET("/users/:id", usersHandler.GetUser)
-	r.PUT("/users/:id", usersHandler.PutUser)
-	r.DELETE("/users/:id", usersHandler.DeleteUser)
+	r.DELETE("/user/:id", usersHandler.DeleteUser)
 
 	// start server
 	e.HideBanner = true

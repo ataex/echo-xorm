@@ -69,7 +69,6 @@ func (h *Handler) PostUser(c echo.Context) error {
 		h.C.Logger.Error(utils.GetEvent(c), err.Error())
 		return c.String(errors.Decompose(err))
 	}
-	h.C.Logger.Info("debug", "body = ", body)
 	// validate body
 	err = validatePostBody(&body)
 	if err != nil {
@@ -94,7 +93,7 @@ func (h *Handler) PutUser(c echo.Context) error {
 	// parse id
 	id, err := strconv.ParseUint(c.Param("id"), 10, 0)
 	if err != nil {
-		err = errors.NewWithCode(http.StatusBadRequest, "request paramer read error; "+err.Error())
+		err = errors.NewWithCode(http.StatusBadRequest, "request parameter read error; "+err.Error())
 		h.C.Logger.Error(utils.GetEvent(c), err.Error())
 		return c.String(errors.Decompose(err))
 	}
@@ -104,15 +103,20 @@ func (h *Handler) PutUser(c echo.Context) error {
 		h.C.Logger.Error(utils.GetEvent(c), err.Error())
 		return c.String(errors.Decompose(err))
 	}
-	// construct user
-	user := User{
-		ID:       id,
-		Email:    body.Email,
-		Password: body.Password,
+	// validate body
+	err = validatePutBody(&body)
+	if err != nil {
+		err = errors.NewWithCode(http.StatusBadRequest, "request body validate error; "+err.Error())
+		h.C.Logger.Error(utils.GetEvent(c), err.Error())
+		return c.String(errors.Decompose(err))
 	}
+	// construct user
+	user := NewUser(&body)
+	user.ID = id
 	// update
 	err = user.Update(h.C.Orm)
 	if err != nil {
+		h.C.Logger.Error(utils.GetEvent(c), err.Error())
 		return c.String(errors.Decompose(err))
 	}
 	return c.JSON(http.StatusOK, user)
@@ -133,6 +137,7 @@ func (h *Handler) DeleteUser(c echo.Context) error {
 	// delete
 	err = user.Delete(h.C.Orm)
 	if err != nil {
+		h.C.Logger.Error(utils.GetEvent(c), err.Error())
 		return c.String(errors.Decompose(err))
 	}
 	return c.NoContent(http.StatusOK)
@@ -145,6 +150,18 @@ func validatePostBody(b *PostBody) error {
 		}
 	}
 	if len(b.Password) < 6 || len(b.Password) > 100 {
+		return errors.New("invalid password")
+	}
+	return nil
+}
+
+func validatePutBody(b *PostBody) error {
+	if (len(b.Email) != 0) && !reEmail.MatchString(b.Email) {
+		if b.Email != "admin" {
+			return errors.New("invalid email")
+		}
+	}
+	if (len(b.Password) != 0) && (len(b.Password) < 6 || len(b.Password) > 100) {
 		return errors.New("invalid password")
 	}
 	return nil

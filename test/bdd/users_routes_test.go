@@ -9,13 +9,12 @@ import (
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
-
 )
 
 var _ = Describe("Test /users", func() {
 	Context("Test GET /users", testGetUsers)
 	Context("Test POST /users", testPostUsers)
-	// Context("Test PUT /users", testPutUsers)
+	Context("Test PUT /users", testPutUsers)
 	// Context("Test DELETE /users", testDeleteUsers)
 })
 
