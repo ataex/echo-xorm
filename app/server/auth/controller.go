@@ -51,7 +51,7 @@ func (h *Handler) PostAuth(c echo.Context) error {
 		return c.NoContent(http.StatusUnauthorized)
 	}
 
-	//validate user credentials
+	// validate user credentials
 	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(body.Password))
 	if err != nil {
 		err = errors.NewWithPrefix(err, "compare hash and password")
@@ -59,10 +59,10 @@ func (h *Handler) PostAuth(c echo.Context) error {
 		return c.NoContent(http.StatusUnauthorized)
 	}
 
-	//create a HMAC SHA256 signer
+	// create a HMAC SHA256 signer
 	token := jwt.New(jwt.SigningMethodHS256)
 
-	//set claims
+	// set claims
 	claims := token.Claims.(jwt.MapClaims)
 	claims["iss"] = user.Email
 	claims["iat"] = time.Now().UTC().Unix()

@@ -22,7 +22,6 @@ var (
 )
 
 func main() {
-	//runtime.GOMAXPROCS(runtime.NumCPU())
 	// parse flags
 	flag.Parse()
 

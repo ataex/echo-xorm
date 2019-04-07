@@ -1,6 +1,6 @@
 package logger
 
-// NilLogger ...
+// NilLogger logs nothing
 type NilLogger struct {
 }
 

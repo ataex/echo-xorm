@@ -2,6 +2,7 @@ package logger
 
 import (
 	"fmt"
+
 	"github.com/go-xorm/core"
 )
 
@@ -10,7 +11,7 @@ type OrmLogger struct {
 	proxy Logger
 }
 
-// NewOrmLogger ...
+// NewOrmLogger is logger constructor
 func NewOrmLogger(proxyLogger Logger) *OrmLogger {
 	l := new(OrmLogger)
 	l.proxy = proxyLogger

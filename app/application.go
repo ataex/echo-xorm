@@ -35,10 +35,7 @@ func New(flags *ctx.Flags) (*Application, error) {
 	}
 
 	// init Logger
-	err = a.initLogger()
-	if err != nil {
-		return nil, err
-	}
+	a.initLogger()
 
 	// set JWTSignKey
 	a.Ctx.Logger.Info("appcontrol", "started generation JWT signing key")
@@ -105,28 +102,27 @@ func (a *Application) initConfigFromFile(cfgFileName string) error {
 	if err != nil {
 		return errors.New("Configuration file read error: " + cfgFileName + "\nError:" + err.Error())
 	}
-	_, err = toml.Decode(string(tomlData[:]), &a.Ctx.Config)
+	_, err = toml.Decode(string(tomlData), &a.Ctx.Config)
 	if err != nil {
 		return errors.New("Configuration file decoding error: " + cfgFileName + "\nError:" + err.Error())
 	}
 	// init Logging data
-	if len(a.Ctx.Config.Logging.ID) == 0 {
+	if a.Ctx.Config.Logging.ID == "" {
 		a.Ctx.Config.Logging.ID = strconv.Itoa(os.Getpid())
 	}
-	if len(a.Ctx.Config.Logging.LogTag) == 0 {
+	if a.Ctx.Config.Logging.LogTag == "" {
 		a.Ctx.Config.Logging.LogTag = os.Args[0]
 	}
 	return nil
 }
 
 // setupLogger sets apllication Logger up according to configuration settings
-func (a *Application) initLogger() error {
+func (a *Application) initLogger() {
 	if a.Ctx.Config.Logging.LogMode == "nil" || a.Ctx.Config.Logging.LogMode == "null" {
 		a.Ctx.Logger = logger.NewNilLogger()
-		return nil
+		return
 	}
 	a.Ctx.Logger = logger.NewStdLogger(a.Ctx.Config.Logging.ID, a.Ctx.Config.Logging.LogTag)
-	return nil
 }
 
 // setJWTSigningKey sets key for JWT.

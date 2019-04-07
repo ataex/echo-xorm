@@ -29,7 +29,7 @@ func testPostUsers() {
 				if data.HttpCode != 0 {
 					Expect(resp.StatusCode()).To(Equal(data.HttpCode))
 				}
-				if len(data.JsonOut) != 0 {
+				if data.JsonOut != "" {
 					Expect(resp.Body()).Should(ContainUnorderedJSON(data.JsonOut))
 				}
 				// verify database

@@ -156,12 +156,12 @@ func validatePostBody(b *PostBody) error {
 }
 
 func validatePutBody(b *PostBody) error {
-	if (len(b.Email) != 0) && !reEmail.MatchString(b.Email) {
+	if (b.Email != "") && !reEmail.MatchString(b.Email) {
 		if b.Email != "admin" {
 			return errors.New("invalid email")
 		}
 	}
-	if (len(b.Password) != 0) && (len(b.Password) < 6 || len(b.Password) > 100) {
+	if (b.Password != "") && (len(b.Password) < 6 || len(b.Password) > 100) {
 		return errors.New("invalid password")
 	}
 	return nil

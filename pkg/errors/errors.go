@@ -56,14 +56,18 @@ func NewWithPrefix(e error, m string) error {
 // if error contains 'code' then function extracts it
 // else function returns defaultStatus as a code
 // In case of nil error the function will return nils
-func Decompose(e error) (int, string) {
+func Decompose(e error) (code int, msg string) {
 	if e == nil {
-		return zeroStatus, "not an error"
+		code = zeroStatus
+		msg = "not an error"
+		return
 	}
 	ecm, ok := e.(*errorCodeMessage)
 	if ok {
 		return ecm.code, ecm.msg
 	}
 	// else
-	return defaultStatus, e.Error()
+	code = defaultStatus
+	msg = e.Error()
+	return
 }

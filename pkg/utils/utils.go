@@ -7,7 +7,7 @@ import (
 	"golang.org/x/crypto/sha3"
 )
 
-// GetSHA3Hash ...
+// GetSHA3Hash return base64 encoded sha3hash
 func GetSHA3Hash(data string) string {
 	h := make([]byte, 64)
 	sha3.ShakeSum256(h, []byte(data))

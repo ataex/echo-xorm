@@ -11,7 +11,6 @@ import (
 
 	echo "github.com/labstack/echo/v4"
 	middleware "github.com/labstack/echo/v4/middleware"
-	//"github.com/labstack/gommon/log"
 )
 
 // Server is an main application object that shared (read-only) to application modules
@@ -31,7 +30,6 @@ func New(c *ctx.Context) *Server {
 // Run registers API and starts http-server
 func (s *Server) Run() {
 	e := s.echoSrv
-	//e.Logger.SetLevel(log.ERROR)
 
 	// Global Middleware
 	e.Pre(middleware.RemoveTrailingSlash())

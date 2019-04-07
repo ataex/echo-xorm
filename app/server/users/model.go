@@ -30,7 +30,7 @@ func (u *User) TableName() string {
 
 // NewUser creates user from request body
 // returns *User with data from body
-// returns nil if error occured
+// returns nil if error occurred
 func NewUser(b *PostBody) *User {
 	u := &User{
 		Email:         b.Email,
@@ -230,11 +230,11 @@ func (u *User) Delete(orm *xorm.Engine) error {
 //------------------------------------------------------------------------------
 func (u *User) setDataToUpdate(old *User) error {
 	// email
-	if len(u.Email) == 0 {
+	if u.Email == "" {
 		u.Email = old.Email
 	}
 	// displayName
-	if len(u.DisplayName) == 0 {
+	if u.DisplayName == "" {
 		u.DisplayName = old.DisplayName
 	}
 	// passwordEtime
@@ -242,7 +242,7 @@ func (u *User) setDataToUpdate(old *User) error {
 		u.PasswordEtime = old.PasswordEtime
 	}
 	// password
-	if len(u.Password) == 0 {
+	if u.Password == "" {
 		u.Password = old.Password
 	} else {
 		hash, err := bcrypt.GenerateFromPassword([]byte(u.Password), bcrypt.DefaultCost)

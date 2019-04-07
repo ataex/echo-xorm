@@ -7,14 +7,14 @@ import (
 	"os"
 )
 
-// StdLogger ...
+// StdLogger logs to Stdout
 type StdLogger struct {
 	logger *log.Logger
 	id     string
 	tag    string
 }
 
-// NewStdLogger ...
+// NewStdLogger is StdLogger constructor
 func NewStdLogger(id, tag string) *StdLogger {
 	l := StdLogger{
 		logger: log.New(os.Stdout, "", 0),
@@ -43,7 +43,7 @@ func (l *StdLogger) Warn(values ...interface{}) {
 // Close for Stdlogger does nothing
 func (l *StdLogger) Close() {}
 
-// main log implementaion
+// main log implementation
 func (l *StdLogger) logTagged(category string, values ...interface{}) {
 	if len(values) <= 1 {
 		l.logUntagged(values...)
@@ -65,7 +65,7 @@ func (l *StdLogger) logTagged(category string, values ...interface{}) {
 	}
 }
 
-// untagged log implementaion
+// untagged log implementation
 func (l *StdLogger) logUntagged(values ...interface{}) {
 	logData := map[string]interface{}{
 		"App":   l.tag,

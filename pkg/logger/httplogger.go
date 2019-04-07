@@ -25,8 +25,8 @@ func HTTPLogger(l Logger) echo.MiddlewareFunc {
 				"URL":         req.URL.String(),
 				"Status":      strconv.Itoa(c.Response().Status),
 				"ElapsedTime": stop.Sub(start).String(),
-				//"Data":    req.GetBody(),
-				//"AuthData":    req.Header.Get(""),
+				// "Data":    req.GetBody(),
+				// "AuthData":    req.Header.Get(""),
 			}
 			// pack data and send to logger
 			l.Info("http", fmt.Sprint(logData))
