@@ -35,7 +35,7 @@ func BeginTransaction(orm *xorm.Engine, level int) (*xorm.Session, error) {
 		return nil, errors.NewWithPrefix(err, "database error")
 	}
 	switch level {
-	case ctx.LevelReadCommited:
+	case ctx.LevelReadCommitted:
 		query = ";"
 	case ctx.LevelRepeatableRead:
 		query = "SET TRANSACTION ISOLATION LEVEL REPEATABLE READ"

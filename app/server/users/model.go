@@ -86,7 +86,7 @@ func (u *User) FindOne(orm *xorm.Engine) error {
 // Save user to database
 func (u *User) Save(orm *xorm.Engine) error {
 	// begin transaction
-	tx, err := utils.BeginTransaction(orm, ctx.LevelReadCommited)
+	tx, err := utils.BeginTransaction(orm, ctx.LevelReadCommitted)
 	if err != nil {
 		return err
 	}
@@ -116,7 +116,7 @@ func (u *User) Save(orm *xorm.Engine) error {
 // Update user in database
 func (u *User) Update(orm *xorm.Engine) error {
 	// begin transaction
-	tx, err := utils.BeginTransaction(orm, ctx.LevelReadCommited)
+	tx, err := utils.BeginTransaction(orm, ctx.LevelReadCommitted)
 	if err != nil {
 		return err
 	}
@@ -160,7 +160,7 @@ func (u *User) Update(orm *xorm.Engine) error {
 // Delete user from database
 func (u *User) Delete(orm *xorm.Engine) error {
 	// begin transaction
-	tx, err := utils.BeginTransaction(orm, ctx.LevelReadCommited)
+	tx, err := utils.BeginTransaction(orm, ctx.LevelReadCommitted)
 	if err != nil {
 		return err
 	}

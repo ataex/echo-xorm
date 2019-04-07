@@ -36,7 +36,7 @@ type Config struct {
 }
 
 const (
-	LevelReadCommited = iota + 1
+	LevelReadCommitted = iota + 1
 	LevelRepeatableRead
 	LevelSerializable
 )
