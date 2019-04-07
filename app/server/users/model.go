@@ -83,17 +83,52 @@ func (u *User) FindOne(orm *xorm.Engine) error {
 
 // Save user to database
 func (u *User) Save(orm *xorm.Engine) error {
-	err := u.validateDataToSave(orm)
-	if err != nil {
-		return err
-	}
-	// save to storage
-	affected, err := orm.InsertOne(u)
+	var erb error // error of rollback
+	// create transaction
+	tx := orm.NewSession()
+	defer tx.Close()
+	// begin transaction
+	err := tx.Begin()
 	if err != nil {
 		return errors.NewWithPrefix(err, "database error")
 	}
+	// validate data
+	err = u.validateDataToSave(tx)
+	if err != nil {
+		erb = tx.Rollback()
+		if erb != nil {
+			erb = errors.NewWithPrefix(erb, err.Error())
+			return errors.NewWithPrefix(erb, "database error")
+		}
+		return errors.NewWithPrefix(err, "database error")
+	}
+	// save data to storage
+	affected, err := tx.InsertOne(u)
+	if err != nil {
+		erb = tx.Rollback()
+		if erb != nil {
+			erb = errors.NewWithPrefix(erb, err.Error())
+			return errors.NewWithPrefix(erb, "database error")
+		}
+		return errors.NewWithPrefix(err, "database error")
+	}
 	if affected == 0 {
-		return errors.New("database error; db refused to insert")
+		erb = tx.Rollback()
+		if erb != nil {
+			erb = errors.NewWithPrefix(erb, err.Error())
+			return errors.NewWithPrefix(erb, "database error")
+		}
+		return errors.NewWithPrefix(err, "database error")
+	}
+	// commit transaction
+	err = tx.Commit()
+	if err != nil {
+		erb = tx.Rollback()
+		if erb != nil {
+			erb = errors.NewWithPrefix(erb, err.Error())
+			return errors.NewWithPrefix(erb, "database error")
+		}
+		return errors.NewWithPrefix(err, "database error")
 	}
 
 	return nil
@@ -163,7 +198,7 @@ func (u *User) Delete(orm *xorm.Engine) error {
 		return err
 	}
 	//delete
-	affected, err := orm.ID(u.ID).Delete(&User{})
+	affected, err := tx.ID(u.ID).Delete(&User{})
 	if err != nil {
 		erb = tx.Rollback()
 		if erb != nil {
@@ -225,9 +260,9 @@ func (u *User) setDataToUpdate(old *User) error {
 	return nil
 }
 
-func (u *User) validateDataToSave(orm *xorm.Engine) error {
+func (u *User) validateDataToSave(tx *xorm.Session) error {
 	// email uniqueness
-	affected, err := orm.Where("email = ?", u.Email).Count(&User{})
+	affected, err := tx.Where("email = ?", u.Email).Count(&User{})
 	if err != nil {
 		return errors.NewWithPrefix(err, "database error")
 	}

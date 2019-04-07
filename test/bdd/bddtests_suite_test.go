@@ -43,7 +43,6 @@ var _ = BeforeSuite(func() {
 })
 
 var _ = AfterSuite(func() {
-	time.Sleep(1 * time.Second)
 	suite.app.Shutdown() //nolint
 })
 
