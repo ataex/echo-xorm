@@ -45,7 +45,7 @@ func BeginTransaction(orm *xorm.Engine, level int) (*xorm.Session, error) {
 	_, err = tx.Exec(query)
 	if err != nil {
 		tx.Close()
-		return nil, errors.NewWithPrefix(err, "database error")
+		return nil, err
 	}
 	return tx, nil
 }

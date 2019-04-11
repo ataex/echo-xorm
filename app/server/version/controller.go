@@ -14,6 +14,10 @@ type Handler struct {
 	C *ctx.Context
 }
 
+func NewHandler(c *ctx.Context) *Handler {
+	return &Handler{C: c}
+}
+
 // Result defines http response on GET /version
 type Result struct {
 	Result     string `json:"result"`

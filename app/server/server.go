@@ -36,9 +36,9 @@ func (s *Server) Run() {
 	e.Use(logger.HTTPLogger(s.context.Logger))
 
 	var (
-		authHandler    = auth.Handler{C: s.context, Key: s.context.JWTSignKey}
-		versionHandler = version.Handler{C: s.context}
-		usersHandler   = users.Handler{C: s.context}
+		authHandler    = auth.Handler(s.context)
+		versionHandler = version.NewHandler(s.context)
+		usersHandler   = users.NewHandler(s.context)
 	)
 
 	// Non-authored routes

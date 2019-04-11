@@ -125,20 +125,22 @@ func (u *User) Update(orm *xorm.Engine) error {
 	old := &User{ID: u.ID}
 	found, err := tx.Get(old)
 	if err != nil {
-		return errors.NewWithPrefix(err, "database error")
+		err = errors.NewWithPrefix(err, "database error")
+		return utils.RollbackTransaction(tx, err)
 	}
 	if !found {
-		return errors.NewWithCode(http.StatusNotFound, "user not found")
+		err = errors.NewWithCode(http.StatusNotFound, "user not found")
+		return utils.RollbackTransaction(tx, err)
 	}
 	// set data to update
 	err = u.setDataToUpdate(old)
 	if err != nil {
-		return err
+		return utils.RollbackTransaction(tx, err)
 	}
 	// validate data to update
 	err = u.validateDataToUpdate(tx)
 	if err != nil {
-		return err
+		return utils.RollbackTransaction(tx, err)
 	}
 	// update
 	affected, err := tx.ID(u.ID).Update(u)
@@ -146,7 +148,8 @@ func (u *User) Update(orm *xorm.Engine) error {
 		return utils.RollbackTransaction(tx, err)
 	}
 	if affected == 0 {
-		return errors.New("database error; db refused to update")
+		err = errors.New("database error; db refused to update")
+		return utils.RollbackTransaction(tx, err)
 	}
 	// commit transaction
 	err = tx.Commit()

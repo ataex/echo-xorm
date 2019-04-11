@@ -28,6 +28,10 @@ type Handler struct {
 	C *ctx.Context
 }
 
+func NewHandler(c *ctx.Context) *Handler {
+	return &Handler{C: c}
+}
+
 // GetAllUsers is a GET /users handler
 func (h *Handler) GetAllUsers(c echo.Context) error {
 	users, err := FindAll(h.C.Orm)

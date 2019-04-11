@@ -16,8 +16,11 @@ import (
 
 // Handler represents handlers for '/auth'
 type Handler struct {
-	C   *ctx.Context
-	Key []byte
+	C *ctx.Context
+}
+
+func NewHandler(c *ctx.Context) *Handler {
+	return &Handler{C: c}
 }
 
 // PostBody represents payload data format
@@ -69,7 +72,7 @@ func (h *Handler) PostAuth(c echo.Context) error {
 	claims["exp"] = time.Now().Add(time.Hour * 72).UTC().Unix()
 	claims["jti"] = user.ID
 
-	t, err := token.SignedString(h.Key)
+	t, err := token.SignedString(h.C.JWTSignKey)
 	if err != nil {
 		err = errors.NewWithPrefix(err, "token signing error")
 		h.C.Logger.Error(utils.GetEvent(c), err.Error())
