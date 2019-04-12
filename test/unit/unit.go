@@ -2,12 +2,16 @@ package unit
 
 import (
 	"fmt"
+	"net/http"
+	"net/http/httptest"
 	"reflect"
+	"strings"
 
 	"github.com/corvinusz/echo-xorm/app/ctx"
 	"github.com/corvinusz/echo-xorm/pkg/logger"
 
 	"github.com/go-xorm/xorm"
+	"github.com/labstack/echo/v4"
 	_ "github.com/mattn/go-sqlite3"
 	"github.com/stretchr/objx"
 )
@@ -46,4 +50,19 @@ func ContainsJSON(s, substr string) (bool, error) {
 	}
 
 	return true, nil
+}
+
+func SetTestEnv(method, path string, body *strings.Reader) (rec *httptest.ResponseRecorder, c echo.Context, ac *ctx.Context) {
+	e := echo.New()
+	var req *http.Request
+	if body != nil {
+		req = httptest.NewRequest(method, path, body)
+	} else {
+		req = httptest.NewRequest(method, path, nil)
+	}
+	req.Header.Set("Content-Type", "application/json")
+	rec = httptest.NewRecorder()
+	c = e.NewContext(req, rec)
+	ac = NewTestAppContext()
+	return
 }

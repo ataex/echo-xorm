@@ -2,7 +2,6 @@ package auth
 
 import (
 	"net/http"
-	"net/http/httptest"
 	"strings"
 	"testing"
 
@@ -33,7 +32,8 @@ func mockData() []*users.User {
 
 func TestPostAuth(t *testing.T) {
 	body := strings.NewReader(`{"email":"admin", "password":"admin"}`)
-	_, rec, c, h := setPostAuthTestEnv(body)
+	rec, c, appc := unit.SetTestEnv(echo.POST, "/auth", body)
+	h := NewHandler(appc)
 
 	err := setDatabase(h)
 	if err != nil {
@@ -47,7 +47,8 @@ func TestPostAuth(t *testing.T) {
 
 func TestPostAuthFail(t *testing.T) {
 	body := strings.NewReader(`{"email":"admin", "password":"admin1"}`)
-	_, rec, c, h := setPostAuthTestEnv(body)
+	rec, c, appc := unit.SetTestEnv(echo.POST, "/auth", body)
+	h := NewHandler(appc)
 
 	err := setDatabase(h)
 	if err != nil {
@@ -57,17 +58,6 @@ func TestPostAuthFail(t *testing.T) {
 	if assert.NoError(t, h.PostAuth(c)) {
 		assert.Equal(t, http.StatusUnauthorized, rec.Code)
 	}
-}
-
-func setPostAuthTestEnv(body *strings.Reader) (req *http.Request, rec *httptest.ResponseRecorder, c echo.Context, h *Handler) {
-	e := echo.New()
-	req = httptest.NewRequest(echo.POST, "/", body)
-	req.Header.Set("Content-Type", "application/json")
-	rec = httptest.NewRecorder()
-	c = e.NewContext(req, rec)
-	h = NewHandler(unit.NewTestAppContext())
-	c.SetPath("/auth/")
-	return
 }
 
 func setDatabase(h *Handler) error {

@@ -2,7 +2,6 @@ package version
 
 import (
 	"net/http"
-	"net/http/httptest"
 	"testing"
 
 	"github.com/corvinusz/echo-xorm/test/unit"
@@ -12,13 +11,8 @@ import (
 )
 
 func TestGetVersion(t *testing.T) {
-	e := echo.New()
-	req := httptest.NewRequest(echo.GET, "/", nil)
-	rec := httptest.NewRecorder()
-	c := e.NewContext(req, rec)
-	h := NewHandler(unit.NewTestAppContext())
-
-	c.SetPath("/version")
+	rec, c, appc := unit.SetTestEnv(echo.GET, "/version", nil)
+	h := NewHandler(appc)
 
 	var versionJSON = `{"version":"0.1.0develop", "result":"OK"}`
 
