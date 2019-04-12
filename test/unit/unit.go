@@ -12,15 +12,19 @@ import (
 	"github.com/stretchr/objx"
 )
 
-func NewHandlerContext() *ctx.Context {
+func NewTestAppContext() *ctx.Context {
 	testLogger := logger.NewStdLogger("echo-xorm-unit", "")
 	testOrm, err := xorm.NewEngine("sqlite3", "/tmp/echo-xorm-test.sqlite")
 	if err != nil {
 		panic(err)
 	}
+	testConfig := &ctx.Config{
+		Version: "0.1.0develop",
+	}
 	return &ctx.Context{
 		Logger: testLogger,
 		Orm:    testOrm,
+		Config: testConfig,
 	}
 }
 

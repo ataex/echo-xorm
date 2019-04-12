@@ -36,7 +36,7 @@ func (s *Server) Run() {
 	e.Use(logger.HTTPLogger(s.context.Logger))
 
 	var (
-		authHandler    = auth.Handler(s.context)
+		authHandler    = auth.NewHandler(s.context)
 		versionHandler = version.NewHandler(s.context)
 		usersHandler   = users.NewHandler(s.context)
 	)

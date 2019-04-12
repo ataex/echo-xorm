@@ -30,9 +30,10 @@ func TestGetAll(t *testing.T) {
 	req := httptest.NewRequest(echo.GET, "/", nil)
 	rec := httptest.NewRecorder()
 	c := e.NewContext(req, rec)
+	h := NewHandler(unit.NewTestAppContext())
+
 	c.SetPath("/users/")
 
-	h := NewHandler(unit.NewHandlerContext())
 	err := h.C.Orm.DropTables(&User{})
 	if err != nil {
 		t.Fatal(err)
@@ -61,11 +62,12 @@ func TestGetUser(t *testing.T) {
 	req := httptest.NewRequest(echo.GET, "/", nil)
 	rec := httptest.NewRecorder()
 	c := e.NewContext(req, rec)
+	h := NewHandler(unit.NewTestAppContext())
+
 	c.SetPath("/users/:id")
 	c.SetParamNames("id")
 	c.SetParamValues("100")
 
-	h := NewHandler(unit.NewHandlerContext())
 	err := h.C.Orm.DropTables(&User{})
 	if err != nil {
 		t.Fatal(err)
