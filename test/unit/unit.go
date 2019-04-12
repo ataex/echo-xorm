@@ -18,7 +18,7 @@ import (
 
 func NewTestAppContext() *ctx.Context {
 	testLogger := logger.NewStdLogger("echo-xorm-unit", "")
-	testOrm, err := xorm.NewEngine("sqlite3", "/tmp/echo-xorm-test.sqlite")
+	testOrm, err := xorm.NewEngine("sqlite3", ":memory:")
 	if err != nil {
 		panic(err)
 	}

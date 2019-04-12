@@ -1,57 +1,42 @@
 package users
 
 import (
+	"database/sql"
 	"net/http"
 	"testing"
 
 	"github.com/corvinusz/echo-xorm/test/unit"
 
+	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/labstack/echo/v4"
 	"github.com/stretchr/testify/assert"
 )
 
-func mockData() []*User {
-	users := []*User{
-		{
-			ID:          1,
-			Email:       "admin",
-			DisplayName: "AdminName",
-			Password:    "$2a$10$WUwK.b4F6BoXjBoq1ORpTONnXwrnoyA2EA7BfS9iNNEJRmkg8oGXq",
-		},
-		{
-			ID:          100,
-			Email:       "a_test_user_02@example.com",
-			DisplayName: "a_test_user_02",
-			Password:    "$2a$14$ZAolslKaP9AFy6PmxvZHQ.NIeZrMSQ0A/w65jpf4RRvTE4qyIvZ4C", // a_test_user_02
-		},
+func mockDbForGetAll(h *Handler) (*sql.DB, error) {
+	db, mock, err := sqlmock.New()
+	if err != nil {
+		return nil, err
 	}
-	return users
-}
 
-func setDatabase(h *Handler) error {
-	err := h.C.Orm.DropTables(&User{})
-	if err != nil {
-		return err
-	}
-	err = h.C.Orm.Sync(&User{})
-	if err != nil {
-		return err
-	}
-	_, err = h.C.Orm.Insert(mockData())
-	if err != nil {
-		return err
-	}
-	return nil
+	rowsAll := sqlmock.NewRows([]string{"id", "email", "display_name"}).
+		AddRow(1, "admin", "AdminName").
+		AddRow(100, "a_test_user_02@example.com", "a_test_user_02")
+
+	mock.ExpectQuery("^SELECT (.+)").WillReturnRows(rowsAll)
+
+	h.C.Orm.DB().DB = db
+	return db, nil
 }
 
 func TestGetAll(t *testing.T) {
 	rec, c, appc := unit.SetTestEnv(echo.GET, "/users", nil)
 	h := NewHandler(appc)
 
-	err := setDatabase(h)
+	db, err := mockDbForGetAll(h)
 	if err != nil {
 		t.Fatal(err)
 	}
+	defer db.Close()
 
 	var expectedJSON = `[{"id":1,"email":"admin"}, {"id":100,"email":"a@a.a"}]`
 
@@ -63,17 +48,32 @@ func TestGetAll(t *testing.T) {
 	}
 }
 
-func TestGetUser(t *testing.T) {
+func mockDbForGetOne(h *Handler) (*sql.DB, error) {
+	db, mock, err := sqlmock.New()
+	if err != nil {
+		return nil, err
+	}
+
+	rowsOne := sqlmock.NewRows([]string{"id", "email", "display_name"}).
+		AddRow(100, "a_test_user_02@example.com", "a_test_user_02")
+
+	mock.ExpectQuery("^SELECT (.+)").WillReturnRows(rowsOne)
+
+	h.C.Orm.DB().DB = db
+	return db, nil
+}
+
+func TestGetOne(t *testing.T) {
 	rec, c, appc := unit.SetTestEnv(echo.GET, "/users", nil)
 	h := NewHandler(appc)
+	c.SetParamNames("id")
+	c.SetParamValues("100")
 
-	err := setDatabase(h)
+	db, err := mockDbForGetOne(h)
 	if err != nil {
 		t.Fatal(err)
 	}
-
-	c.SetParamNames("id")
-	c.SetParamValues("100")
+	defer db.Close()
 
 	var expectedJSON = `{"id":100,"email":"a_test_user_02@example.com", "displayName":"a_test_user_02"}`
 
