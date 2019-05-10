@@ -69,7 +69,7 @@ func (h *Handler) PostAuth(c echo.Context) error {
 	claims := token.Claims.(jwt.MapClaims)
 	claims["iss"] = user.Email
 	claims["iat"] = time.Now().UTC().Unix()
-	claims["exp"] = time.Now().Add(time.Hour * 72).UTC().Unix()
+	claims["exp"] = time.Now().Add(time.Hour * 24).UTC().Unix()
 	claims["jti"] = user.ID
 
 	t, err := token.SignedString(h.C.JWTSignKey)

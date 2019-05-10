@@ -10,32 +10,18 @@ My own toy example with
 
 # Installation
 ## Prerequisites
-Currently using *dep* as a dependencies manager.
 
-```bash
-go get -u github.com/golang/dep/cmd/dep
-```
+golang 1.11+ (due to using the go modules)
 
 ## Installation process
 ```bash
-go get -d github.com/corvinusz/echo-xorm
-cd $GOPATH/src/github.com/corvinusz/echo-xorm/
-dep ensure
 go install
-```
-
-## Vendoring
-Implemented via [github.com/golang/dep](https://github.com/golang/dep)
-To update vendor dependencies use
-```bash
-cd $GOPATH/src/github.com/corvinusz/echo-xorm/
-dep ensure -update
 ```
 
 ## Configuration
 Config file located as
 
-`$GOPATH/src/github.com/corvinusz/echo-xorm/deploy/echo-xorm-config.toml`
+`$GOPATH/src/github.com/corvinusz/echo-xorm/config/echo-xorm-config.toml`
 Feel free to change.
 
 By default application expect to find the configuration file as:
@@ -52,10 +38,10 @@ Currently using:
 # Application Run
 ```bash
 echo-xorm -h # shows application flags
-echo-xorm -config=$GOPATH/src/github.com/corvinusz/echo-xorm/deploy/echo-xorm-config.toml # runs app with default cfg
+echo-xorm -config=$GOPATH/src/github.com/corvinusz/echo-xorm/config/echo-xorm-config.toml # runs app with default cfg
 ```
 
-To health check
+## Health check
 ```bash
 curl http://localhost:11111/version
 ```
@@ -75,6 +61,15 @@ or you browser plugin like:
 - etc...
 
 # Testing
+
+## Unit-tests for handlers (not yet completed)
+```bash
+cd app/server
+go test -coverprofile=t.coverprofile ./...
+go tool cover -html t.coverprofile
+```
+
+## BDD-style tests
 Implemented in BDD-style with:
 - Test Framework: [gomega](https://github.com/onsi/gomega)
 - HTTP-Client: [Go-resty](https://github.com/go-resty/resty)
