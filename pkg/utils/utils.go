@@ -3,12 +3,17 @@ package utils
 import (
 	"encoding/base64"
 
-	"github.com/corvinusz/echo-xorm/app/ctx"
 	"github.com/corvinusz/echo-xorm/pkg/errors"
 
 	"github.com/go-xorm/xorm"
 	"github.com/labstack/echo/v4"
 	"golang.org/x/crypto/sha3"
+)
+
+const (
+	TxLevelReadCommitted = iota + 1
+	TxLevelRepeatableRead
+	TxLevelSerializable
 )
 
 // GetSHA3Hash return base64 encoded sha3hash
@@ -23,30 +28,17 @@ func GetEvent(c echo.Context) string {
 	return c.Request().Method + " " + c.Path()
 }
 
-// BeginTansaction starts transaction for ORM with defined isolation LEVEL
+// BeginTansaction starts transaction for ORM with default isolation level
 // Returns transaction pointer and error (nil or prefixed)
 // In case of error the transaction is always closed
-func BeginTransaction(orm *xorm.Engine, level int) (*xorm.Session, error) {
-	var query string
+func BeginTransaction(orm *xorm.Engine) (*xorm.Session, error) {
 	tx := orm.NewSession()
 	err := tx.Begin()
 	if err != nil {
 		tx.Close()
 		return nil, errors.NewWithPrefix(err, "database error")
 	}
-	switch level {
-	case ctx.LevelReadCommitted:
-		query = ";"
-	case ctx.LevelRepeatableRead:
-		query = "SET TRANSACTION ISOLATION LEVEL REPEATABLE READ"
-	case ctx.LevelSerializable:
-		query = "SET TRANSACTION ISOLATION LEVEL SERIALIZABLE"
-	}
-	_, err = tx.Exec(query)
-	if err != nil {
-		tx.Close()
-		return nil, err
-	}
+
 	return tx, nil
 }
 
@@ -60,5 +52,5 @@ func RollbackTransaction(tx *xorm.Session, err error) error {
 		}
 		return errors.NewWithPrefix(erb, "database error")
 	}
-	return errors.NewWithPrefix(err, "database error")
+	return err
 }

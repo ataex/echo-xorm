@@ -53,7 +53,7 @@ func New(flags *ctx.Flags) (*Application, error) {
 	}
 	a.Ctx.Logger.Info("appcontrol", "connected to database successfully")
 
-	a.Ctx.Config.Version = "0.1.0develop"
+	a.Ctx.Config.Version = "0.1.0-dev"
 
 	return a, nil
 }

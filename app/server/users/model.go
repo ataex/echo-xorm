@@ -5,7 +5,6 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/corvinusz/echo-xorm/app/ctx"
 	"github.com/corvinusz/echo-xorm/pkg/errors"
 	"github.com/corvinusz/echo-xorm/pkg/utils"
 
@@ -86,7 +85,7 @@ func (u *User) FindOne(orm *xorm.Engine) error {
 // Save user to database
 func (u *User) Save(orm *xorm.Engine) error {
 	// begin transaction
-	tx, err := utils.BeginTransaction(orm, ctx.LevelReadCommitted)
+	tx, err := utils.BeginTransaction(orm)
 	if err != nil {
 		return err
 	}
@@ -116,7 +115,7 @@ func (u *User) Save(orm *xorm.Engine) error {
 // Update user in database
 func (u *User) Update(orm *xorm.Engine) error {
 	// begin transaction
-	tx, err := utils.BeginTransaction(orm, ctx.LevelReadCommitted)
+	tx, err := utils.BeginTransaction(orm)
 	if err != nil {
 		return err
 	}
@@ -163,7 +162,7 @@ func (u *User) Update(orm *xorm.Engine) error {
 // Delete user from database
 func (u *User) Delete(orm *xorm.Engine) error {
 	// begin transaction
-	tx, err := utils.BeginTransaction(orm, ctx.LevelReadCommitted)
+	tx, err := utils.BeginTransaction(orm)
 	if err != nil {
 		return err
 	}
