@@ -5,6 +5,7 @@ go 1.12
 require (
 	github.com/Benjamintf1/unmarshalledmatchers v0.0.0-20180622171218-f49d1795d752
 	github.com/BurntSushi/toml v0.3.1
+	github.com/DATA-DOG/go-sqlmock v1.3.3
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/go-xorm/core v0.6.2
 	github.com/go-xorm/xorm v0.7.1

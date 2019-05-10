@@ -43,7 +43,7 @@ func (h *Handler) PostAuth(c echo.Context) error {
 	if err != nil {
 		err = errors.NewWithPrefix(err, "request body parse error")
 		h.C.Logger.Error(utils.GetEvent(c), err.Error())
-		return c.String(http.StatusBadRequest, err.Error())
+		return c.String(http.StatusUnauthorized, err.Error())
 	}
 
 	// find user
