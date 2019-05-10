@@ -11,24 +11,24 @@ My own toy example with
 # Installation
 ## Prerequisites
 
-golang 1.11+ (due to using the go modules)
+golang 1.11+ (because of go modules)
 
 ## Installation process
 ```bash
-go install
+GO111MODULE=on; go install
 ```
 
 ## Configuration
-Config file located as
+Config file is located at
 
 `$GOPATH/src/github.com/corvinusz/echo-xorm/config/echo-xorm-config.toml`
 Feel free to change.
 
-By default application expect to find the configuration file as:
+By default application expects to find the configuration file at
 
 `/usr/local/etc/echo-xorm-config.toml`
 
-You can point path to config file it with '-config' flag
+You can also point the path to the config file with the flag '-config'
 
 ## Database
 Currently using:
@@ -65,7 +65,7 @@ or you browser plugin like:
 ## Unit-tests for handlers (not yet completed)
 ```bash
 cd app/server
-go test -coverprofile=t.coverprofile ./...
+GO111MODULE=on; go test -coverprofile=t.coverprofile ./...
 go tool cover -html t.coverprofile
 ```
 
@@ -76,7 +76,7 @@ Implemented in BDD-style with:
 
 ```bash
 cd $GOPATH/src/github.com/corvinusz/echo-xorm/bddtests
-go test
+GO111MODULE=on; go test
 ```
 
 Test parameters defined in file:

@@ -53,9 +53,10 @@ func NewWithPrefix(e error, m string) error {
 }
 
 // Decompose returns error code and message
-// if error contains 'code' then function extracts it
-// else function returns defaultStatus as a code
-// In case of nil error the function will return nils
+// if error contains 'code' then function extracts one
+// else function returns defaultStatus as the 'code'
+//
+// In case of error == nil the function will return nils
 func Decompose(e error) (code int, msg string) {
 	if e == nil {
 		code = zeroStatus
